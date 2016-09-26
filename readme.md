@@ -73,6 +73,12 @@ var filter = new window.Filter(element, options);
 
 An api endpoint that returns json with form facets and a list of products
 
+### ajaxOptions
+
+`object`, **optional**
+
+Options to be passed to [jQuery Ajax](http://api.jquery.com/jquery.ajax/)
+
 ### initialResponse
 
 `object`, **optional**
@@ -98,6 +104,14 @@ A function that converts parameters before they are displayed in the url
 `function`, **optional**
 
 Transform the json from the api before rendering the template.
+
+### loaderClass
+
+`string`, **optional**
+
+A css class that will be added to the container element whenever an ajax request is in progress.
+
+Default: `filter--loading`
 
 ### Json response
 
