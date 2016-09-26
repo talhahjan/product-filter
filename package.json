@@ -1,8 +1,8 @@
 {
   "name": "geta-product-filter",
-  "version": "0.1.0",
-  "description": "Product filter",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "A JavaScript plugin that connects to your API and renders a product filter with custom HTML.",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
