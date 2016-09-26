@@ -1,0 +1,86 @@
+{
+  "products": [
+    {
+      "regularPrice": 100,
+      "brand": "My Brand",
+      "name": "My red product",
+      "url": "#",
+      "imageUrl": "http://placehold.it/540x380"
+    },
+    {
+      "regularPrice": 200,
+      "brand": "My Brand",
+      "name": "My green product",
+      "url": "#",
+      "imageUrl": "http://placehold.it/540x380"
+    },
+    {
+      "regularPrice": 300,
+      "brand": "My Brand",
+      "name": "My blue product",
+      "url": "#",
+      "imageUrl": "http://placehold.it/540x380"
+    },
+    {
+      "regularPrice": 400,
+      "brand": "My Other Brand",
+      "name": "My other blue product",
+      "url": "#",
+      "imageUrl": "http://placehold.it/540x380"
+    }
+  ],
+  "facets": [
+    {
+      "label": "Brand",
+      "name": "brand",
+      "items": [
+        {
+          "label": "My Brand",
+          "value": "my-brand",
+          "count": 3
+        },
+        {
+          "label": "My Other Brand",
+          "value": "my-other-brand",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "label": "Color",
+      "name": "color",
+      "items": [
+        {
+          "label": "Red",
+          "value": "red",
+          "count": 2
+        },
+        {
+          "label": "Green",
+          "value": "green",
+          "count": 1
+        },
+        {
+          "label": "Blue",
+          "value": "blue",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "label": "Price",
+      "name": "price",
+      "items": [
+        {
+          "value": 100
+        },
+        {
+          "value": 200
+        },
+        {
+          "value": 300
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+@mixin filter-clearfix {
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin filter-reset {
+  &,
+  * {
+    &,
+    &:before,
+    &:after {
+      box-sizing: border-box;
+    }
+  }
+}
+
+@mixin filter-reset-button {
+  border: none 0;
+  background: transparent;
+  appearance: normal;
+  user-select: none;
+  cursor: pointer;
+}
+
+@mixin filter-states-shadow {
+  transition: box-shadow $filter-transition-duration $filter-transition-easing;
+  box-shadow: $filter-list-state-shadow;
+
+  &:hover {
+    box-shadow: $filter-list-state-shadow-hover;
+  }
+
+  &:focus {
+    box-shadow: $filter-list-state-shadow-focus;
+    outline: none;
+  }
+
+  &:active {
+    box-shadow: $filter-list-state-shadow-active;
+  }
+}
+
+@mixin filter-states-background-color($color) {
+  transition: background-color $filter-transition-duration $filter-transition-easing;
+
+  &:hover {
+    background-color: rgba($color, .25);
+  }
+
+  &:focus {
+    background-color: rgba($color, .5);
+    outline: none;
+  }
+
+  &:active {
+    background-color: rgba($color, 1);
+  }
+}
+
+@mixin filter-states-border-color($color) {
+  transition: border-color $filter-transition-duration $filter-transition-easing;
+
+  &:hover {
+    border-color: rgba($color, .25);
+  }
+
+  &:focus {
+    border-color: rgba($color, .5);
+    outline: none;
+  }
+
+  &:active {
+    border-color: rgba($color, 1);
+  }
+}

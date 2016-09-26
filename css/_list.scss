@@ -1,0 +1,127 @@
+.filter-form--active + .filter-list {
+  transform: translateX(0);
+}
+
+.filter-list {
+  position: relative;
+  transform: scale(1);
+  opacity: 1;
+
+  @include media-small-and-medium {
+    float: left;
+    transition: transform .25s ease, opacity 1s ease 1s;
+    transform: translateX(-$filter-form-width-small);
+    width: calc(100% + #{$filter-form-width-small});
+    padding: $filter-list-item-gutter;
+    background-color: $filter-list-background-color-small;
+    box-shadow: $filter-list-state-shadow-active;
+  }
+  @include media-large {
+    min-height: 200px;
+    margin-left: -$filter-list-item-gutter;
+    margin-right: -$filter-list-item-gutter;
+    padding-top: $filter-list-item-gutter;
+    transition: opacity 1s ease;
+    background-color: $filter-list-background-color-large;
+  }
+
+  &--loading {
+    opacity: 0;
+
+    @include media-small-and-medium {
+      transition-delay: 0s, 0s;
+    }
+    @include media-large {
+      transition-delay: 0s;
+    }
+  }
+
+  &:before {
+    @extend %loader;
+    display: block;
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 1s ease 1s;
+  }
+
+  // Make the list appear to be as tall as the form on small screens
+
+  &:after {
+    @include media-small-and-medium {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      height: 10000px;
+      background-color: $filter-list-background-color-small;
+    }
+  }
+
+  &-list {
+    @include filter-clearfix;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &--loading:before {
+    opacity: 1;
+    transition-delay: 0s;
+  }
+
+  &-error {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #fff;
+
+    &-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: red;
+    }
+  }
+
+  &-empty {
+    @include media-small-and-medium {
+      padding: 40px 10px;
+      text-align: center;
+      background-color: $filter-list-empty-background-color-small;
+      color: $filter-list-empty-color-small;
+    }
+    @include media-large {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: $filter-list-empty-background-color-large;
+      color: $filter-list-empty-color-large;
+    }
+
+    &-text {
+
+      @include media-small-and-medium {
+
+      }
+      @include media-large {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+}

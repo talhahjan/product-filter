@@ -1,0 +1,44 @@
+.filter-form {
+  position: relative;
+  font-size: 0;
+
+  @include media-small-and-medium {
+    z-index: 0;
+    float: left;
+    width: $filter-form-width-small;
+    margin-left: -$filter-form-width-small;
+    padding: $filter-form-padding-small;
+    background-color: $filter-form-background-color-small;
+  }
+  @include media-large {
+    z-index: 2;
+    padding: $filter-form-padding-large;
+    background-color: $filter-form-background-color-large;
+  }
+
+  &-counter {
+    @include filter-font-form-counter;
+
+	@include media-small {
+      display:none;
+    }
+    @include media-medium {
+      position: absolute;
+      top: -42px;
+      left: 100vw;
+      transform: translateX(-100%);
+      width: $filter-form-counter-width-small;
+      color: $filter-form-counter-color-small;
+    }
+    @include media-large {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: $filter-form-counter-width-large;
+      padding-right: 15px;
+      text-align: right;
+      color: $filter-form-counter-color-large;
+    }
+  }
+}

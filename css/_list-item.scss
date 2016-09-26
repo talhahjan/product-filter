@@ -1,0 +1,77 @@
+.filter-list-item {
+  position: relative;
+  float: left;
+  list-style: none;
+
+  @include media-small {
+    //width: calc(50% - #{$filter-list-item-gutter});
+    width: 50%;
+    padding-top: 50%;
+  }
+  @include media-medium {
+    //width: calc(#{percentage(1/3)} - #{$filter-list-item-gutter});
+    width: percentage(1/3);
+    padding-top: percentage(1/3);
+  }
+  @include media-large {
+    //width: calc(25% - #{$filter-list-item-gutter});
+    width: 25%;
+    padding-top: 25%;
+  }
+
+  &-button {
+    @include filter-states-shadow;
+    display: block;
+    position: absolute;
+    top: $filter-list-item-gutter;
+    right: $filter-list-item-gutter;
+    bottom: $filter-list-item-gutter;
+    left: $filter-list-item-gutter;
+    background-color: $filter-list-item-background-color;
+    text-decoration: none;
+  }
+
+  &-image {
+    position: absolute;
+    top: $filter-list-item-padding;
+    right: $filter-list-item-padding;
+    left: $filter-list-item-padding;
+    height: $filter-list-item-image-height;
+    background: {
+      size: contain;
+      repeat: no-repeat;
+      position: center center;
+    }
+  }
+
+  &-text {
+    padding: $filter-list-item-padding;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    //max-height: 100% - $filter-list-item-image-height;
+    background-color: rgba(#fff, .85);
+  }
+
+  &-brand {
+    @include filter-font-list-item-brand;
+    text-align: center;
+    color: $filter-list-item-color;
+  }
+
+  &-name {
+    @include filter-font-list-item-name;
+    text-align: center;
+    color: $filter-list-item-color;
+  }
+
+  &-price {
+    @include filter-font-list-item-price;
+    text-align: center;
+    color: $filter-list-item-color;
+
+    &--campaign {
+    }
+  }
+}

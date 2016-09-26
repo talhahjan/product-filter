@@ -1,0 +1,132 @@
+//
+// General
+//
+
+$filter-form-color-1: #444 !default;
+$filter-form-color-2: #eee !default;
+$filter-form-color-3: #fff !default;
+$filter-form-color-4: #000 !default;
+$filter-form-color-5: #888 !default;
+
+$filter-font-family: Arial, Helvetica, sans-serif !default;
+
+$filter-list-state-shadow: 0 0 3px rgba($filter-form-color-1, .25) !default;
+$filter-list-state-shadow-hover: 0 0 3px rgba($filter-form-color-1, .5) !default;
+$filter-list-state-shadow-focus: 0 0 3px rgba($filter-form-color-1, .75) !default;
+$filter-list-state-shadow-active: 0 0 3px $filter-form-color-1 !default;
+
+$filter-transition-duration: .25s !default;
+$filter-transition-easing: ease !default;
+
+// Small
+
+$filter-form-width-small: 240px !default;
+
+//
+// Filter
+//
+
+// General
+
+$filter-background-color-small: $filter-form-color-1 !default;
+
+//
+// Form toggle
+//
+
+$filter-form-toggle-color: $filter-form-color-3 !default;
+
+//
+// Form
+//
+
+// Small
+
+$filter-form-counter-width-small: 100px !default;
+$filter-form-padding-small: 1px !default;
+$filter-form-background-color-small: $filter-form-color-1 !default;
+$filter-form-counter-color-small: $filter-form-color-3 !default;
+
+// Large
+
+$filter-form-counter-width-large: 100px !default;
+$filter-form-padding-large: 15px $filter-form-counter-width-large + 15px 5px 15px !default;
+$filter-form-background-color-large: $filter-form-color-3 !default;
+$filter-form-counter-color-large: $filter-form-color-1 !default;
+
+//
+// Form item
+//
+
+// All
+
+$filter-form-item-gutter: 10px !default;
+$filter-form-item-background-color-empty: $filter-form-color-2 !default;
+$filter-form-item-caret-size: 8px !default;
+$filter-form-item-border-radius: 2px !default;
+
+// Small
+
+$filter-form-item-background-color-small: $filter-form-color-1 !default;
+$filter-form-item-options-background-color-small: $filter-form-color-4 !default;
+$filter-form-item-color: $filter-form-color-1 !default;
+$filter-form-item-icon-color-small: $filter-form-color-3 !default;
+$filter-form-item-background-color-disabled-small: transparent !default;
+$filter-form-item-color-disabled-small: $filter-form-color-5 !default;
+
+// Large
+
+$filter-form-item-background-color-large: $filter-form-color-3 !default;
+$filter-form-item-options-background-color-large: $filter-form-color-3 !default
+$filter-form-item-border-large: solid 1px $filter-form-color-1 !default;
+$filter-form-item-icon-color-large: $filter-form-color-1 !default;
+$filter-form-item-background-color-disabled-large: $filter-form-color-2 !default;
+$filter-form-item-color-disabled-large: $filter-form-color-5 !default;
+
+//
+// Form checkbox
+//
+
+// All
+
+$filter-form-checkbox-check-size: 12px !default;
+
+// Small
+
+$filter-form-checkbox-icon-color-small: $filter-form-color-3 !default;
+
+// Large
+
+$filter-form-checkbox-border-bottom-large: $filter-form-item-border-large;
+$filter-form-checkbox-icon-color-large: $filter-form-color-1 !default;
+
+//
+// List
+//
+
+// Small
+
+$filter-list-background-color-small: $filter-form-color-2;
+$filter-list-empty-background-color-small: $filter-form-color-1;
+$filter-list-empty-color-small: $filter-form-color-3;
+
+// Large
+
+$filter-list-background-color-large: transparent;
+$filter-list-empty-background-color-large: $filter-form-color-3;
+$filter-list-empty-color-large: $filter-form-color-1;
+
+//
+// List item
+//
+
+$filter-list-item-background-color: $filter-form-color-3 !default;
+$filter-list-item-color: $filter-form-color-4 !default;
+
+$filter-list-item-gutter: 1px !default;
+$filter-list-item-padding: 10px !default;
+
+$filter-list-item-image-height: 65% !default;
+
+$filter-list-item-transition-easing: ease !default;
+$filter-list-item-transition-duration: .25s !default;

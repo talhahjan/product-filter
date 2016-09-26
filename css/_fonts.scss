@@ -1,0 +1,53 @@
+@mixin filter-font-form-item {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+@mixin filter-font-form-checkbox {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  line-height: 1.25;
+  text-transform: capitalize;
+}
+
+@mixin filter-font-form-counter {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+@mixin filter-font-list-item-brand {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+@mixin filter-font-list-item-name {
+  font-family: $filter-font-family;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+@mixin filter-font-list-item-price {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+@mixin filter-font-range-label {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+@mixin filter-font-range-input {
+  font-family: $filter-font-family;
+  font-size: 14px;
+  line-height: 2;
+}

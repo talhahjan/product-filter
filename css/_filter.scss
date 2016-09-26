@@ -1,0 +1,36 @@
+.filter {
+  @include filter-reset;
+  @include filter-clearfix;
+
+  &:not(&--enable-animations) {
+    &,
+    * {
+      transition-duration: 0s !important;
+    }
+  }
+
+  @include media-small-and-medium {
+    overflow: hidden;
+    padding-left: $filter-form-width-small;
+    background-color: $filter-background-color-small;
+  }
+
+  &-form-toggle {
+    @include media-small-and-medium {
+      @include filter-reset-button;
+      display: block;
+      margin-left: -$filter-form-width-small;
+      width: calc(100% + #{$filter-form-width-small});
+      padding: 20px;
+      color: $filter-form-toggle-color;
+      text-align: left;
+    }
+    @include media-large {
+      display: none;
+    }
+
+    &:focus {
+      outline: none; // TODO
+    }
+  }
+}
