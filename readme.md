@@ -41,13 +41,21 @@ See [an example of a template](index.html)  that renders html from [a json respo
 Add these `data-attributes` to the HTML:
 
 **`data-filter`**: The container that holds the template and rendered HTML
+
 **`data-filter-template`**: The Handlebars template
+
 **`data-filter-form-toggle`**: A button that toggles the form on small screens
+
 **`data-filter-tag`**: Container for the tag-list
+
 **`data-filter-tag-remove json`**: A button that clears a filter
+
 **`data-filter-form`**: The form that will be submitted to the API
+
 **`data-filter-form-group`**: A group of toggleable form elements
+
 **`data-filter-form-group-toggle`**: A button for toggling a form group
+
 
 ### Initialize the JavaScript
 
