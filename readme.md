@@ -2,6 +2,8 @@
 
 A JavaScript plugin that connects to your API and renders a product filter with custom HTML.
 
+**[Demo](https://geta.github.io/product-filter/)**
+
 ## Getting started
 
 ### Install from NPM
@@ -13,12 +15,18 @@ A JavaScript plugin that connects to your API and renders a product filter with 
     <link rel="stylesheet" href="node_modules/geta-product-filter/dist/index.css">
     <script src="node_modules/geta-product-filter/dist/index.js"></script>
 
-### Write some HTML
+### Write a HTML template
 
-See [an example](demo/demo-index.html)
+See [an example](index.html)
+
+**TODO**: Add more documentation
 
 ### Initialize the JavaScript
 
-### Make sure the api returns json for the html
+**TODO**: Add more documentation
 
-See [an example](fixtures/demo/index.json)
+### Json response
+
+Your api must return `json` with properties that can be read by the html template.
+
+See [an example](demo/full/index.json)
