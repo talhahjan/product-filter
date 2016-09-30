@@ -468,6 +468,7 @@ window.Filter = function () {
                 transformTemplateData: function transformTemplateData(data) {
                     return data;
                 },
+                rendered: function rendered(element) {},
                 loaderClass: 'filter--loading'
             };
         }
@@ -536,6 +537,8 @@ window.Filter = function () {
             });
 
             this.element.querySelector('[data-filter-form-toggle]').addEventListener('click', form.activate.bind(form));
+
+            this.options.rendered(this._content);
         }
     }, {
         key: '_renderError',

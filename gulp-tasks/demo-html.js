@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const sourceDirectory = './demo';
+const sourceDirectory = 'demo';
 
 const distDirectory = '.';
 
@@ -30,7 +30,7 @@ class Demo {
             name: fixture.name,
             contents: this.template.contents
                 .replace('{json}', json)
-                .replace('{jsonUrl}', '.' + this.path + '/' + fixture.name)
+                .replace(new RegExp('{jsonUrl}', 'g'), this.path + '/' + fixture.name)
         }
     }
 

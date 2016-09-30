@@ -105,6 +105,23 @@ A function that converts parameters before they are displayed in the url
 
 Transform the json from the api before rendering the template.
 
+### rendered
+
+`function`, **optional**
+
+A callback that runs every time the html template has rendered.
+
+Use this for accessing the dom.
+ 
+```JavaScript
+var filter = new window.Filter(element, {
+    ...
+    rendered: function(){
+        
+    }
+});
+```
+
 ### loaderClass
 
 `string`, **optional**

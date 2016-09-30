@@ -15,6 +15,7 @@ window.Filter = class {
             transformRequest: data => data,
             transformUrl: data => data,
             transformTemplateData: data => data,
+            rendered: element => {},
             loaderClass: 'filter--loading'
         }
     }
@@ -77,6 +78,7 @@ window.Filter = class {
         this.element.querySelector('[data-filter-form-toggle]')
             .addEventListener('click', form.activate.bind(form));
 
+        this.options.rendered(this._content);
     }
 
     _renderError(error){
