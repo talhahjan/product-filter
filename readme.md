@@ -48,7 +48,7 @@ Add these `data-attributes` to the HTML:
 
 **`data-filter-tag`**: Container for the tag-list
 
-**`data-filter-tag-remove json`**: A button that clears a filter
+**`data-filter-tag-remove='{"key": "color", "value": "red"}'`**: A button that clears a filter.
 
 **`data-filter-form`**: The form that will be submitted to the API
 
