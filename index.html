@@ -127,7 +127,6 @@
             },
             transformTemplateData: transformTemplateData.fromJson.bind(transformTemplateData),
             rendered: function(element){
-                console.log('rendred', element)
                 var div = document.createElement('div');
                 div.style.cssText = 'font-family: arial; color: salmon; padding: 40px 20px 20px 20px; text-align: center';
                 div.innerHTML = 'This demo displays data from<br /><a href="demo/full/index.json" style="color: inherit">a static json file</a><br />';

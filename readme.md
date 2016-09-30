@@ -114,10 +114,10 @@ A callback that runs every time the html template has rendered.
 Use this for accessing the dom.
  
 ```JavaScript
-var filter = new window.Filter(element, {
+new window.Filter(element, {
     ...
-    rendered: function(){
-        
+    rendered: function(element){
+        console.log(element); // An element that contains the rendered template html
     }
 });
 ```

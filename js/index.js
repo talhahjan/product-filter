@@ -3,6 +3,7 @@ const FilterForm = require('./form');
 const Ajax = require('./ajax');
 const Url = require('./url');
 const Tag = require('./tag');
+const ToggleButton = require('./toggle-button');
 const Template = require('./template');
 
 window.Filter = class {
@@ -59,26 +60,28 @@ window.Filter = class {
     _renderResponse(response){
         this._renderTemplate(response);
 
-        var tag = new Tag(
-            this._content.querySelector('[data-filter-tag]'),
-            {
-                onRemove: this._removeFromUrl.bind(this)
-            }
-        );
+        this._initPlugin(Tag, '[data-filter-tag]', {
+            onRemove: this._removeFromUrl.bind(this)
+        });
 
-        var form = new FilterForm(
-            this._content.querySelector('[data-filter-form]'),
-            {
-                url: this.options.url,
-                onLoad: () => {},
-                onChange: (data) => this._updateUrl(data)
-            }
-        );
+        var form = this._initPlugin(FilterForm, '[data-filter-form]', {
+            url: this.options.url,
+            onLoad: () => {},
+            onChange: (data) => this._updateUrl(data)
+        });
 
-        this.element.querySelector('[data-filter-form-toggle]')
-            .addEventListener('click', form.activate.bind(form));
+        this._initPlugin(ToggleButton, '[data-filter-form-toggle]', {
+            onClick: () => {
+                form && form.activate();
+            }
+        });
 
         this.options.rendered(this._content);
+    }
+
+    _initPlugin(Class, selector, options){
+        var element = this._content.querySelector(selector);
+        return element ? new Class(element, options) : null;
     }
 
     _renderError(error){
