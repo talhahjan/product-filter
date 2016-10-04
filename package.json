@@ -1,6 +1,6 @@
 {
   "name": "geta-product-filter",
-  "version": "0.0.2",
+  "version": "0.1.2",
   "description": "A JavaScript plugin that connects to your API and renders a product filter with custom HTML.",
   "main": "dist/index.js",
   "scripts": {

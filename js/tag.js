@@ -25,9 +25,4 @@ module.exports = class {
 		var value = data.value;
 		this.options.onRemove(parameterName, value);
 	}
-
-	_renderItem(value){
-		// Reaplce underscore for the viewing name, looks better.
-		value = value.replace("_", "-");
-	}
 }

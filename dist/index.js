@@ -493,8 +493,12 @@ window.Filter = function () {
     _createClass(_class, [{
         key: '_createContentElement',
         value: function _createContentElement() {
-            var element = document.createElement('div');
-            this.element.appendChild(element);
+            var element = this.element.querySelector('[data-filter-rendered-template]');
+            if (!element) {
+                element = document.createElement('div');
+                element.setAttribute('data-filter-rendered-template', '');
+                this.element.appendChild(element);
+            }
             return element;
         }
     }, {
@@ -514,7 +518,7 @@ window.Filter = function () {
             var ajaxOptions = this.options.ajaxOptions;
             var transformRequest = this.options.transformRequest;
             $(this.element).addClass(this.options.loaderClass);
-            var a = Ajax.get(url, data, ajaxOptions, transformRequest).then(this._renderResponse.bind(this)).catch(this._renderError.bind(this)).always(function () {
+            Ajax.get(url, data, ajaxOptions, transformRequest).then(this._renderResponse.bind(this)).catch(this._renderError.bind(this)).always(function () {
                 return $(_this.element).removeClass(_this.options.loaderClass);
             });
         }
@@ -554,7 +558,9 @@ window.Filter = function () {
     }, {
         key: '_renderError',
         value: function _renderError(error) {
-            this._renderTemplate(null, error);
+            if (error.statusText != 'abort') {
+                this._renderTemplate(null, error);
+            }
         }
     }, {
         key: '_renderTemplate',
@@ -651,12 +657,6 @@ module.exports = function () {
 			var parameterName = data.key;
 			var value = data.value;
 			this.options.onRemove(parameterName, value);
-		}
-	}, {
-		key: '_renderItem',
-		value: function _renderItem(value) {
-			// Reaplce underscore for the viewing name, looks better.
-			value = value.replace("_", "-");
 		}
 	}]);
 

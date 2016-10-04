@@ -34,8 +34,12 @@ window.Filter = class {
     }
 
     _createContentElement(){
-        var element = document.createElement('div');
-        this.element.appendChild(element);
+        var element = this.element.querySelector('[data-filter-rendered-template]');
+        if(!element){
+            element = document.createElement('div');
+            element.setAttribute('data-filter-rendered-template', '');
+            this.element.appendChild(element);
+        }
         return element;
     }
 
@@ -51,7 +55,7 @@ window.Filter = class {
         var ajaxOptions = this.options.ajaxOptions;
         var transformRequest = this.options.transformRequest;
         $(this.element).addClass(this.options.loaderClass);
-        var a = Ajax.get(url, data, ajaxOptions, transformRequest)
+        Ajax.get(url, data, ajaxOptions, transformRequest)
             .then(this._renderResponse.bind(this))
             .catch(this._renderError.bind(this))
             .always(() => $(this.element).removeClass(this.options.loaderClass));
@@ -85,7 +89,9 @@ window.Filter = class {
     }
 
     _renderError(error){
-        this._renderTemplate(null, error);
+        if(error.statusText != 'abort'){
+            this._renderTemplate(null, error);
+        }
     }
 
     _renderTemplate(response, error = null){

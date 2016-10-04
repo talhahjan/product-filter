@@ -44,6 +44,8 @@ Add these `data-attributes` to the HTML:
 
 **`data-filter-template`**: The Handlebars template
 
+**`data-filter-rendered-template`**: A container for the rendered html; will be inserted automatically if not provided
+
 **`data-filter-form-toggle`**: A button that toggles the form on small screens
 
 **`data-filter-tag`**: Container for the tag-list
@@ -55,7 +57,6 @@ Add these `data-attributes` to the HTML:
 **`data-filter-form-group`**: A group of toggleable form elements
 
 **`data-filter-form-group-toggle`**: A button for toggling a form group
-
 
 ### Initialize the JavaScript
 
