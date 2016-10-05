@@ -137,7 +137,7 @@ Your api must return `json` with properties that can be read by the html templat
 
 See [an example](demo/full/index.json)
 
-## Serverside rendering 
+## Server-side rendering 
 
 This package does not provide methods for server-side rendering, but all you need is a server-side compiler for Handlebars.
 
@@ -152,13 +152,7 @@ That way you can use the same Handlebars template on both the client and the ser
 **2.** Create `template.hbs` with a Handlebars template
 
 ```handlebars
-<div data-filter class="filter">
-    <script data-filter-template type="text/x-handlebars-template">
-        <div class="filter-form-counter">
-			{{response.count}} products
-		</div>
-    </script>
-</div>
+<div>{{response.count}} products</div>
 ```
 
 **3.** Compile the template with some initial data
