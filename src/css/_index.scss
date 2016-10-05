@@ -1,9 +1,4 @@
-
-%loader {
-  display: block;
-}
-
-@import '../node_modules/sass-media-mixins/index';
+@import '../../node_modules/sass-media-mixins/index';
 @import 'settings';
 @import 'mixins';
 @import 'fonts';
@@ -11,7 +6,6 @@
 @import 'form';
 @import 'form-item';
 @import 'form-checkbox';
-@import 'form-range';
 @import 'list';
 @import 'list-item';
 @import 'tag';

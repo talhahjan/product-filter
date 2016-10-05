@@ -1,6 +1,4 @@
 const $ = require('jquery');
-const FilterFormCheckbox = require('./form-checkbox');
-const FilterFormRange = require('./form-range');
 
 var instances = [];
 
@@ -57,37 +55,6 @@ module.exports = class {
             .getPropertyValue('content')
             .replace(/"/g, '')
             .replace(/'/g, '');
-    }
-
-    render(options){
-        this.options = $.extend({}, this.options, options);
-        this._setButtonState();
-        switch(this.options.type){
-            case 'checkbox':
-                this._renderCheckbox();
-                break;
-            case 'range':
-                this._renderRange();
-                break;
-            default:
-                throw new Error('Type must be checkbox or range');
-        }
-    }
-
-    _renderCheckbox(){
-        var containerElement = this.element.querySelector('[data-filter-form-item-options]');
-        containerElement.innerHTML = '';
-        var checkboxElements = this.options.items.map(item => new FilterFormCheckbox(item));
-        checkboxElements.forEach(item => containerElement.appendChild(item.element));
-    }
-
-    _renderRange(){
-        if(this.options.items.length === 1) {
-            var containerElement = this.element.querySelector('[data-filter-form-item-options]');
-            containerElement.innerHTML = '';
-            var range = new FilterFormRange(this.options.items[0]);
-            containerElement.appendChild(range.element)
-        }
     }
 
     _setButtonState(){

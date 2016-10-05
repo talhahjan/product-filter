@@ -1,5 +1,4 @@
 const $ = require('jquery');
-const FilterUtils = require('./utils');
 
 module.exports = class {
 

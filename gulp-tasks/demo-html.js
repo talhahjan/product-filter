@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const sourceDirectory = 'demo';
+const sourceDirectory = 'src/demo';
 
 const distDirectory = '.';
 

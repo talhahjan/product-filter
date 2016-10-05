@@ -117,7 +117,7 @@
         var jsonFromServer = { "products": [ { "regularPrice": 100, "brand": "My Brand", "name": "My red product", "url": "#", "imageUrl": "http://placehold.it/540x380" }, { "regularPrice": 200, "brand": "My Brand", "name": "My green product", "url": "#", "imageUrl": "http://placehold.it/540x380" }, { "regularPrice": 300, "brand": "My Brand", "name": "My blue product", "url": "#", "imageUrl": "http://placehold.it/540x380" }, { "regularPrice": 400, "brand": "My Other Brand", "name": "My other blue product", "url": "#", "imageUrl": "http://placehold.it/540x380" } ], "facets": [ { "label": "Brand", "name": "brand", "items": [ { "label": "My Brand", "value": "my-brand", "count": 3 }, { "label": "My Other Brand", "value": "my-other-brand", "count": 1 } ] }, { "label": "Color", "name": "color", "items": [ { "label": "Red", "value": "red", "count": 2 }, { "label": "Green", "value": "green", "count": 1 }, { "label": "Blue", "value": "blue", "count": 1 } ] }, { "label": "Price", "name": "price", "items": [ { "value": 100 }, { "value": 200 }, { "value": 300 } ] } ]};
         var element = document.querySelector('[data-filter]');
         var filter = new window.Filter(element, {
-            url: 'demo/full/index.json',
+            url: 'src/demo/full/index.json',
             initialResponse: jsonFromServer,
             transformRequest: function(data){
                 data.Categories = data.Categories || 'fallback';
@@ -130,7 +130,7 @@
             rendered: function(element){
                 var div = document.createElement('div');
                 div.style.cssText = 'font-family: arial; color: salmon; padding: 40px 20px 20px 20px; text-align: center';
-                div.innerHTML = 'This demo displays data from<br /><a href="demo/full/index.json" style="color: inherit">a static json file</a><br />';
+                div.innerHTML = 'This demo displays data from<br /><a href="src/demo/full/index.json" style="color: inherit">a static json file</a><br />';
                 element.appendChild(div);
             }
         });

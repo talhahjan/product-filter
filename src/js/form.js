@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const FilterUtils = require('./utils');
+const Utils = require('./utils');
 const FormGroup = require('./form-group');
 
 module.exports = class {
@@ -24,9 +24,7 @@ module.exports = class {
         this.element = element;
         this._xhr = null;
         this.element.addEventListener('change', this._onChange.bind(this));
-
         [...element.querySelectorAll('[data-filter-form-group]')].forEach(this._initGroup.bind(this));
-
         if(this.constructor.active){
             this.activate();
         }
@@ -42,8 +40,8 @@ module.exports = class {
     }
 
     _serialize(){
-        var data = FilterUtils.serializeForm(this.element);
-        data = FilterUtils.serializeObjectArrays(data);
+        var data = Utils.serializeForm(this.element);
+        data = Utils.serializeObjectArrays(data);
         return data;
     }
 

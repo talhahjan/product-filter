@@ -1,865 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var Url = require('./url');
-
-module.exports = function () {
-    function _class() {
-        _classCallCheck(this, _class);
-    }
-
-    _createClass(_class, null, [{
-        key: 'get',
-        value: function get(url, data) {
-            var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-            var transformRequest = arguments.length <= 3 || arguments[3] === undefined ? function (data) {
-                return data;
-            } : arguments[3];
-
-            this._xhr && this._xhr.readyState != 4 && this._xhr.abort();
-            options = $.extend({}, {
-                url: url,
-                data: transformRequest(data)
-            }, options);
-            this._xhr = $.ajax(options);
-            return this._xhr;
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"./url":10,"jquery":58}],2:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var FilterUtils = require('./utils');
-
-module.exports = function () {
-    _createClass(_class, null, [{
-        key: 'defaults',
-        get: function get() {
-            return {
-                label: '',
-                value: '',
-                name: null,
-                selected: false,
-                template: function template(options) {
-                    var id = 'id-' + FilterUtils.getUniqueId();
-                    var checked = options.selected ? 'checked="checked"' : '';
-                    return '\n                    <div class="filter-form-checkbox">\n                        <input id="' + id + '" name="' + options.name + '" value="' + options.value + '" type="checkbox" ' + checked + ' />\n                        <label for="' + id + '">' + options.label + '</label>\n                    </div>\n                ';
-                }
-            };
-        }
-    }]);
-
-    function _class(options) {
-        _classCallCheck(this, _class);
-
-        this.options = $.extend({}, this.constructor.defaults, options);
-        this.element = this._createElement();
-    }
-
-    _createClass(_class, [{
-        key: '_createElement',
-        value: function _createElement() {
-            var element = document.createElement('div');
-            element.innerHTML = this.options.template(this.options);
-            return element.firstElementChild;
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"./utils":11,"jquery":58}],3:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var FilterFormCheckbox = require('./form-checkbox');
-var FilterFormRange = require('./form-range');
-
-var instances = [];
-
-module.exports = function () {
-    _createClass(_class, null, [{
-        key: 'defaults',
-        get: function get() {
-            return {
-                activeClass: 'filter-form-item--active'
-            };
-        }
-    }]);
-
-    function _class(element, options) {
-        _classCallCheck(this, _class);
-
-        this.options = $.extend({}, this.constructor.defaults, options);
-        this.element = element;
-        this._id = this.element.getAttribute('data-filter-form-group');
-        this.button = this.element.querySelector('[data-filter-form-group-toggle]');
-        this.button.addEventListener('click', this._toggle.bind(this));
-        if (this.constructor.isActive(this._id)) {
-            this.show();
-        } else {
-            this.hide();
-        }
-    }
-
-    _createClass(_class, [{
-        key: '_toggle',
-        value: function _toggle(event) {
-            event.preventDefault();
-            if (this.constructor.isActive(this._id)) {
-                this.hide();
-            } else {
-                this.show();
-            }
-        }
-    }, {
-        key: 'hide',
-        value: function hide() {
-            $(this.element).removeClass(this.options.activeClass);
-            this.constructor.deactivateId(this._id);
-        }
-    }, {
-        key: 'show',
-        value: function show() {
-            $(this.element).addClass(this.options.activeClass);
-            if (this._getLayoutType() == 'tabs') {
-                this.constructor._active = [];
-                $('.' + this.options.activeClass).not(this.element).removeClass(this.options.activeClass);
-            }
-            this.constructor.activateId(this._id);
-        }
-    }, {
-        key: '_getLayoutType',
-        value: function _getLayoutType() {
-            return window.getComputedStyle(this.element, ':before').getPropertyValue('content').replace(/"/g, '').replace(/'/g, '');
-        }
-    }, {
-        key: 'render',
-        value: function render(options) {
-            this.options = $.extend({}, this.options, options);
-            this._setButtonState();
-            switch (this.options.type) {
-                case 'checkbox':
-                    this._renderCheckbox();
-                    break;
-                case 'range':
-                    this._renderRange();
-                    break;
-                default:
-                    throw new Error('Type must be checkbox or range');
-            }
-        }
-    }, {
-        key: '_renderCheckbox',
-        value: function _renderCheckbox() {
-            var containerElement = this.element.querySelector('[data-filter-form-item-options]');
-            containerElement.innerHTML = '';
-            var checkboxElements = this.options.items.map(function (item) {
-                return new FilterFormCheckbox(item);
-            });
-            checkboxElements.forEach(function (item) {
-                return containerElement.appendChild(item.element);
-            });
-        }
-    }, {
-        key: '_renderRange',
-        value: function _renderRange() {
-            if (this.options.items.length === 1) {
-                var containerElement = this.element.querySelector('[data-filter-form-item-options]');
-                containerElement.innerHTML = '';
-                var range = new FilterFormRange(this.options.items[0]);
-                containerElement.appendChild(range.element);
-            }
-        }
-    }, {
-        key: '_setButtonState',
-        value: function _setButtonState() {
-            if (!this.options.items.length) {
-                this.button.setAttribute('disabled', true);
-            } else {
-                this.button.removeAttribute('disabled');
-            }
-        }
-    }, {
-        key: '_arrayValuesAreEqual',
-        value: function _arrayValuesAreEqual(array, property) {
-            var firstValue = array[0];
-            for (var i = 1; i < array.length; i++) {
-                if (array[i][property] != firstValue[property]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }], [{
-        key: 'activateId',
-        value: function activateId(id) {
-            this._active = this._active || [];
-            var index = this._active.indexOf(id);
-            if (index === -1) {
-                this._active.push(id);
-            }
-        }
-    }, {
-        key: 'deactivateId',
-        value: function deactivateId(id) {
-            this._active = this._active || [];
-            var index = this._active.indexOf(id);
-            if (index !== -1) {
-                this._active.splice(index, 1);
-            }
-        }
-    }, {
-        key: 'isActive',
-        value: function isActive(id) {
-            this._active = this._active || [];
-            return this._active.indexOf(id) !== -1;
-        }
-    }, {
-        key: 'getOrCreate',
-        value: function getOrCreate(options) {
-            var item = instances.filter(function (instance) {
-                return instance.options.id === options.id && options.type == 'range';
-            }).pop();
-            if (!item) {
-                item = new this(options);
-                instances.push(item);
-            }
-            return item;
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"./form-checkbox":2,"./form-range":4,"jquery":58}],4:[function(require,module,exports){
-(function (global){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-global.jQuery = $;
-require('ion-rangeslider');
-var FilterUtils = require('./utils');
-
-module.exports = function () {
-    _createClass(_class, null, [{
-        key: 'defaults',
-        get: function get() {
-            return {
-                min: 0,
-                max: 0,
-                value: {
-                    from: null,
-                    to: null
-                },
-                step: 1,
-                name: null,
-                valueSeparator: '_',
-                template: function template(options) {
-                    var fromId = 'id-' + FilterUtils.getUniqueId();
-                    var toId = 'id-' + FilterUtils.getUniqueId();
-                    return '\n                    <div class="filter-form-range">\n                        <div class="filter-form-range-texts">\n                            <div class="filter-form-range-text">\n                                <label for="' + fromId + '">\n                                    From\n                                </label>\n                                <input id="' + fromId + '" type="number" value="' + options.min + '" data-filter-form-range-from />\n                            </div>\n                            <div class="filter-form-range-text">\n                                <label for="' + toId + '">\n                                    To\n                                </label>\n                                <input id="' + toId + '" type="number" value="' + options.max + '" data-filter-form-range-to />\n                            </div>\n                        </div>\n                        <div>\n                            <input data-form-range-range-input type="text" />\n                            <input data-form-range-value-input type="text" name="' + options.name + '" style="position: absolute; visibility: hidden" disabled />\n                        </div>\n                    </div>\n                ';
-                }
-            };
-        }
-    }]);
-
-    function _class(options) {
-        _classCallCheck(this, _class);
-
-        this.options = $.extend({}, this.constructor.defaults, options);
-        this.options = this._normalizeOptions();
-        this.element = this._createElement();
-        this._fromInput = this.element.querySelector('[data-filter-form-range-from]');
-        this._toInput = this.element.querySelector('[data-filter-form-range-to]');
-        this._rangeInput = this.element.querySelector('[data-form-range-range-input]');
-        this._valueInput = this.element.querySelector('[data-form-range-value-input]');
-        this._initNumericInput(this._fromInput, 'from');
-        this._initNumericInput(this._toInput, 'to');
-        this._initRangeInput(this._rangeInput);
-    }
-
-    _createClass(_class, [{
-        key: '_initNumericInput',
-        value: function _initNumericInput(input, parameter) {
-            input.setAttribute('min', this.options.min);
-            input.setAttribute('max', this.options.max);
-            input.setAttribute('step', this.options.step);
-            input.addEventListener('change', this._onNumericChange.bind(this, parameter));
-        }
-    }, {
-        key: '_initRangeInput',
-        value: function _initRangeInput(input) {
-            this._range = $(input).ionRangeSlider(this.options).data('ionRangeSlider');
-        }
-    }, {
-        key: '_normalizeOptions',
-        value: function _normalizeOptions() {
-            var options = $.extend({}, this.options, {
-                type: 'double',
-                min: Math.floor(this.options.min / 100) * 100,
-                max: Math.ceil(this.options.max / 100) * 100,
-                from: this.options.value.from,
-                to: this.options.value.to,
-                step: 100,
-                grid: false,
-                onFinish: this._onRangeChange.bind(this),
-                onUpdate: this._onRangeChange.bind(this)
-            });
-            options.step = Math.max((options.max - options.min) / 10, 10);
-            return options;
-        }
-    }, {
-        key: '_onNumericChange',
-        value: function _onNumericChange(parameter, event) {
-            var object = {};
-            object[parameter] = event.target.value;
-            this._range.update(object);
-        }
-    }, {
-        key: '_onRangeChange',
-        value: function _onRangeChange(object) {
-            this._fromInput.value = object.from;
-            this._toInput.value = object.to;
-            this._valueInput.removeAttribute('disabled');
-            this._valueInput.value = object.from + this.options.valueSeparator + object.to;
-            var event = new Event('change');
-            this._valueInput.form.dispatchEvent(event);
-        }
-    }, {
-        key: '_createElement',
-        value: function _createElement() {
-            var element = document.createElement('div');
-            element.innerHTML = this.options.template(this.options);
-            return element.firstElementChild;
-        }
-    }]);
-
-    return _class;
-}();
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{"./utils":11,"ion-rangeslider":57,"jquery":58}],5:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var FilterUtils = require('./utils');
-var FormGroup = require('./form-group');
-
-module.exports = function () {
-    _createClass(_class, null, [{
-        key: 'active',
-        set: function set(value) {
-            this._active = value;
-        },
-        get: function get() {
-            return this._active;
-        }
-    }, {
-        key: 'defaults',
-        get: function get() {
-            return {
-                onLoad: function onLoad() {},
-                onChange: function onChange(data) {}
-            };
-        }
-    }]);
-
-    function _class(element, options) {
-        _classCallCheck(this, _class);
-
-        this.options = $.extend({}, this.constructor.defaults, options);
-        this.element = element;
-        this._xhr = null;
-        this.element.addEventListener('change', this._onChange.bind(this));
-
-        [].concat(_toConsumableArray(element.querySelectorAll('[data-filter-form-group]'))).forEach(this._initGroup.bind(this));
-
-        if (this.constructor.active) {
-            this.activate();
-        }
-    }
-
-    _createClass(_class, [{
-        key: '_initGroup',
-        value: function _initGroup(element) {
-            new FormGroup(element);
-        }
-    }, {
-        key: '_onChange',
-        value: function _onChange(event) {
-            event.preventDefault();
-            this.options.onChange(this._serialize());
-        }
-    }, {
-        key: '_serialize',
-        value: function _serialize() {
-            var data = FilterUtils.serializeForm(this.element);
-            data = FilterUtils.serializeObjectArrays(data);
-            return data;
-        }
-    }, {
-        key: 'activate',
-        value: function activate() {
-            $(this.element).toggleClass('filter-form--active');
-            this.constructor.active = true;
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"./form-group":3,"./utils":11,"jquery":58}],6:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var FilterForm = require('./form');
-var Ajax = require('./ajax');
-var Url = require('./url');
-var Tag = require('./tag');
-var ToggleButton = require('./toggle-button');
-var Template = require('./template');
-
-window.Filter = function () {
-    _createClass(_class, null, [{
-        key: 'defaults',
-        get: function get() {
-            return {
-                url: '',
-                initialResponse: null,
-                ajaxOptions: {},
-                transformRequest: function transformRequest(data) {
-                    return data;
-                },
-                transformUrl: function transformUrl(data) {
-                    return data;
-                },
-                transformTemplateData: function transformTemplateData(data) {
-                    return data;
-                },
-                rendered: function rendered(element) {},
-                loaderClass: 'filter--loading'
-            };
-        }
-    }, {
-        key: 'Url',
-        get: function get() {
-            return Url;
-        }
-    }]);
-
-    function _class(element, options) {
-        _classCallCheck(this, _class);
-
-        this.element = element;
-        this.options = $.extend({}, this.constructor.defaults, options);
-        this._content = this._createContentElement();
-        this._renderInitialResponse();
-        this._url = new Url({ onChange: this.ajax.bind(this) });
-    }
-
-    _createClass(_class, [{
-        key: '_createContentElement',
-        value: function _createContentElement() {
-            var element = this.element.querySelector('[data-filter-rendered-template]');
-            if (!element) {
-                element = document.createElement('div');
-                element.setAttribute('data-filter-rendered-template', '');
-                this.element.appendChild(element);
-            }
-            return element;
-        }
-    }, {
-        key: '_renderInitialResponse',
-        value: function _renderInitialResponse() {
-            var response = this.options.initialResponse;
-            response && this._renderResponse(response);
-        }
-    }, {
-        key: 'ajax',
-        value: function ajax() {
-            var _this = this;
-
-            var url = this.options.url;
-            var data = decodeURI(location.search.replace('?', ''));
-            data = Url.parameterStringToObject(data);
-            var ajaxOptions = this.options.ajaxOptions;
-            var transformRequest = this.options.transformRequest;
-            $(this.element).addClass(this.options.loaderClass);
-            Ajax.get(url, data, ajaxOptions, transformRequest).then(this._renderResponse.bind(this)).catch(this._renderError.bind(this)).always(function () {
-                return $(_this.element).removeClass(_this.options.loaderClass);
-            });
-        }
-    }, {
-        key: '_renderResponse',
-        value: function _renderResponse(response) {
-            var _this2 = this;
-
-            this._renderTemplate(response);
-
-            this._initPlugin(Tag, '[data-filter-tag]', {
-                onRemove: this._removeFromUrl.bind(this)
-            });
-
-            var form = this._initPlugin(FilterForm, '[data-filter-form]', {
-                url: this.options.url,
-                onLoad: function onLoad() {},
-                onChange: function onChange(data) {
-                    return _this2._updateUrl(data);
-                }
-            });
-
-            this._initPlugin(ToggleButton, '[data-filter-form-toggle]', {
-                onClick: function onClick() {
-                    form && form.activate();
-                }
-            });
-
-            this.options.rendered(this._content);
-        }
-    }, {
-        key: '_initPlugin',
-        value: function _initPlugin(Class, selector, options) {
-            var element = this._content.querySelector(selector);
-            return element ? new Class(element, options) : null;
-        }
-    }, {
-        key: '_renderError',
-        value: function _renderError(error) {
-            if (error.statusText != 'abort') {
-                this._renderTemplate(null, error);
-            }
-        }
-    }, {
-        key: '_renderTemplate',
-        value: function _renderTemplate(response) {
-            var error = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-
-            var element = this._content;
-            var templateElement = this.element.querySelector('[data-filter-template]');
-            var templateData = this.options.transformTemplateData({
-                response: response,
-                error: error,
-                urlParameters: this._getUrlData()
-            });
-            element.innerHTML = Template.elementToString(templateElement, templateData);
-        }
-    }, {
-        key: '_getUrlData',
-        value: function _getUrlData() {
-            var decoded = decodeURI(location.search.replace('?', ''));
-            return Url.parameterStringToObject(decoded);
-        }
-    }, {
-        key: '_removeFromUrl',
-        value: function _removeFromUrl(mainKey, value) {
-            var urlData = this._getUrlData();
-            var i = urlData[mainKey].indexOf(value);
-            if (i != -1) {
-                urlData[mainKey].splice(i, 1);
-            }
-
-            // Delete the mainkey if the value remaining is zero
-            if (urlData[mainKey].length == 0) {
-                delete urlData[mainKey];
-            }
-
-            this._updateUrl(urlData);
-        }
-    }, {
-        key: 'navigate',
-        value: function navigate(parameters) {
-            var data = $.extend({}, this._getUrlData(), parameters);
-            this._updateUrl(data);
-        }
-    }, {
-        key: '_updateUrl',
-        value: function _updateUrl(data) {
-            data = this.options.transformUrl(data);
-            this._url.update(data);
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"./ajax":1,"./form":5,"./tag":7,"./template":8,"./toggle-button":9,"./url":10,"jquery":58}],7:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var FilterUtils = require('./utils');
-
-module.exports = function () {
-	_createClass(_class, null, [{
-		key: 'defaults',
-		get: function get() {
-			return {
-				onRemove: function onRemove(parameterName, value) {}
-			};
-		}
-	}]);
-
-	function _class(element, options) {
-		_classCallCheck(this, _class);
-
-		this.options = $.extend({}, this.constructor.defaults, options);
-		[].concat(_toConsumableArray(element.querySelectorAll('[data-filter-tag-remove]'))).forEach(this._initButton.bind(this));
-	}
-
-	_createClass(_class, [{
-		key: '_initButton',
-		value: function _initButton(element) {
-			element.addEventListener('click', this._onRemove.bind(this));
-		}
-	}, {
-		key: '_onRemove',
-		value: function _onRemove(event) {
-			event.preventDefault();
-			var data = $(event.currentTarget).data('filter-tag-remove');
-			var parameterName = data.key;
-			var value = data.value;
-			this.options.onRemove(parameterName, value);
-		}
-	}]);
-
-	return _class;
-}();
-
-},{"./utils":11,"jquery":58}],8:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Handlebars = require('handlebars');
-
-module.exports = function () {
-    function _class() {
-        _classCallCheck(this, _class);
-    }
-
-    _createClass(_class, null, [{
-        key: 'elementToString',
-        value: function elementToString(element, data) {
-            var source = element.innerHTML;
-            var template = Handlebars.compile(source);
-            return template(data);
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"handlebars":44}],9:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-
-module.exports = function () {
-    _createClass(_class, null, [{
-        key: 'defaults',
-        get: function get() {
-            return {
-                onClick: function onClick(event) {}
-            };
-        }
-    }]);
-
-    function _class(element, options) {
-        _classCallCheck(this, _class);
-
-        this.options = $.extend({}, this.constructor.defaults, options);
-        element.addEventListener('click', this.options.onClick);
-    }
-
-    return _class;
-}();
-
-},{"jquery":58}],10:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-var FilterUtils = require('./utils');
-
-module.exports = function () {
-    _createClass(_class, null, [{
-        key: 'defaults',
-        get: function get() {
-            return {
-                onChange: function onChange() {}
-            };
-        }
-    }]);
-
-    function _class(options) {
-        _classCallCheck(this, _class);
-
-        this.options = $.extend({}, this.constructor.defaults, options);
-        window.addEventListener('popstate', this.options.onChange);
-    }
-
-    _createClass(_class, [{
-        key: 'update',
-        value: function update(data) {
-            var string = FilterUtils.serializeString(data);
-            window.history.pushState({}, '', '?' + string);
-            this.options.onChange();
-        }
-    }], [{
-        key: 'parameterHasValue',
-        value: function parameterHasValue(name, value) {
-            var urlValue = this.parameter(name);
-            var valueArray = urlValue ? urlValue.split(',') : [];
-            return valueArray.indexOf(value) !== -1;
-        }
-    }, {
-        key: 'parameter',
-        value: function parameter(name) {
-            var url = window.location.href;
-            name = name.replace(/[\[\]]/g, "\\$&");
-            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-            var results = regex.exec(url);
-            if (!results) return null;
-            if (!results[2]) return '';
-            return decodeURIComponent(results[2].replace(/\+/g, " "));
-        }
-    }, {
-        key: 'parameterStringToObject',
-        value: function parameterStringToObject(parametersFromUrl) {
-            var output = {};
-            if (parametersFromUrl.trim() == '') {
-                return output;
-            }
-            var attributes = parametersFromUrl.replace(/(^\?)/, '').split('&');
-            for (var i = 0; i < attributes.length; i++) {
-                var items = attributes[i].split('=');
-                var key = items[0];
-                var value = items[1];
-                var valueSplit = decodeURIComponent(value).split(",");
-                var tempSub = [];
-                for (var counter = 0; counter < valueSplit.length; counter++) {
-                    tempSub[counter] = valueSplit[counter];
-                }
-                value = tempSub;
-                output[key] = value;
-            }
-            return output;
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"./utils":11,"jquery":58}],11:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var $ = require('jquery');
-
-module.exports = function () {
-    function _class() {
-        _classCallCheck(this, _class);
-    }
-
-    _createClass(_class, null, [{
-        key: 'serializeForm',
-        value: function serializeForm(el) {
-            var array = $(el).serializeArray();
-            var serialized = {};
-            for (var i = 0; i < array.length; i++) {
-                var item = array[i];
-                serialized[item.name] = serialized[item.name] || [];
-                serialized[item.name].push(item.value);
-            }
-            return serialized;
-        }
-    }, {
-        key: 'serializeObjectArrays',
-        value: function serializeObjectArrays(object) {
-            var clone = $.extend({}, object, {});
-            for (var name in clone) {
-                if (clone.hasOwnProperty(name)) {
-                    var valueArray = clone[name];
-                    clone[name] = valueArray.join(',');
-                }
-            }
-            return clone;
-        }
-    }, {
-        key: 'serializeString',
-        value: function serializeString(object) {
-            for (var key in object) {
-                var value = object[key];
-                if (Array.isArray(value)) {
-                    object[key] = value.join(',');
-                }
-            }
-            return $.param(object, true);
-        }
-    }, {
-        key: 'getUniqueId',
-        value: function getUniqueId() {
-            this._uniqueId = this._uniqueId === undefined ? 0 : this._uniqueId + 1;
-            return this._uniqueId;
-        }
-    }]);
-
-    return _class;
-}();
-
-},{"jquery":58}],12:[function(require,module,exports){
-
-},{}],13:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -1088,7 +229,7 @@ var substr = 'ab'.substr(-1) === 'b'
 
 }).call(this,require('_process'))
 
-},{"_process":14}],14:[function(require,module,exports){
+},{"_process":3}],3:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -1270,7 +411,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],15:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1337,7 +478,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars.runtime":16,"./handlebars/compiler/ast":18,"./handlebars/compiler/base":19,"./handlebars/compiler/compiler":21,"./handlebars/compiler/javascript-compiler":23,"./handlebars/compiler/visitor":26,"./handlebars/no-conflict":40}],16:[function(require,module,exports){
+},{"./handlebars.runtime":5,"./handlebars/compiler/ast":7,"./handlebars/compiler/base":8,"./handlebars/compiler/compiler":10,"./handlebars/compiler/javascript-compiler":12,"./handlebars/compiler/visitor":15,"./handlebars/no-conflict":29}],5:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1405,7 +546,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":17,"./handlebars/exception":30,"./handlebars/no-conflict":40,"./handlebars/runtime":41,"./handlebars/safe-string":42,"./handlebars/utils":43}],17:[function(require,module,exports){
+},{"./handlebars/base":6,"./handlebars/exception":19,"./handlebars/no-conflict":29,"./handlebars/runtime":30,"./handlebars/safe-string":31,"./handlebars/utils":32}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1511,7 +652,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":28,"./exception":30,"./helpers":31,"./logger":39,"./utils":43}],18:[function(require,module,exports){
+},{"./decorators":17,"./exception":19,"./helpers":20,"./logger":28,"./utils":32}],7:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1544,7 +685,7 @@ exports['default'] = AST;
 module.exports = exports['default'];
 
 
-},{}],19:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1594,7 +735,7 @@ function parse(input, options) {
 }
 
 
-},{"../utils":43,"./helpers":22,"./parser":24,"./whitespace-control":27}],20:[function(require,module,exports){
+},{"../utils":32,"./helpers":11,"./parser":13,"./whitespace-control":16}],9:[function(require,module,exports){
 /* global define */
 'use strict';
 
@@ -1762,7 +903,7 @@ exports['default'] = CodeGen;
 module.exports = exports['default'];
 
 
-},{"../utils":43,"source-map":45}],21:[function(require,module,exports){
+},{"../utils":32,"source-map":34}],10:[function(require,module,exports){
 /* eslint-disable new-cap */
 
 'use strict';
@@ -2336,7 +1477,7 @@ function transformLiteralToPath(sexpr) {
 }
 
 
-},{"../exception":30,"../utils":43,"./ast":18}],22:[function(require,module,exports){
+},{"../exception":19,"../utils":32,"./ast":7}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2568,7 +1709,7 @@ function preparePartialBlock(open, program, close, locInfo) {
 }
 
 
-},{"../exception":30}],23:[function(require,module,exports){
+},{"../exception":19}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3696,7 +2837,7 @@ exports['default'] = JavaScriptCompiler;
 module.exports = exports['default'];
 
 
-},{"../base":17,"../exception":30,"../utils":43,"./code-gen":20}],24:[function(require,module,exports){
+},{"../base":6,"../exception":19,"../utils":32,"./code-gen":9}],13:[function(require,module,exports){
 /* istanbul ignore next */
 /* Jison generated parser */
 "use strict";
@@ -4436,7 +3577,7 @@ var handlebars = (function () {
 exports['default'] = handlebars;
 
 
-},{}],25:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /* eslint-disable new-cap */
 'use strict';
 
@@ -4624,7 +3765,7 @@ PrintVisitor.prototype.HashPair = function (pair) {
 /* eslint-enable new-cap */
 
 
-},{"./visitor":26}],26:[function(require,module,exports){
+},{"./visitor":15}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4766,7 +3907,7 @@ exports['default'] = Visitor;
 module.exports = exports['default'];
 
 
-},{"../exception":30}],27:[function(require,module,exports){
+},{"../exception":19}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4989,7 +4130,7 @@ exports['default'] = WhitespaceControl;
 module.exports = exports['default'];
 
 
-},{"./visitor":26}],28:[function(require,module,exports){
+},{"./visitor":15}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5007,7 +4148,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":29}],29:[function(require,module,exports){
+},{"./decorators/inline":18}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5038,7 +4179,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":43}],30:[function(require,module,exports){
+},{"../utils":32}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5080,7 +4221,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],31:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5128,7 +4269,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":32,"./helpers/each":33,"./helpers/helper-missing":34,"./helpers/if":35,"./helpers/log":36,"./helpers/lookup":37,"./helpers/with":38}],32:[function(require,module,exports){
+},{"./helpers/block-helper-missing":21,"./helpers/each":22,"./helpers/helper-missing":23,"./helpers/if":24,"./helpers/log":25,"./helpers/lookup":26,"./helpers/with":27}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5169,7 +4310,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":43}],33:[function(require,module,exports){
+},{"../utils":32}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5265,7 +4406,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":30,"../utils":43}],34:[function(require,module,exports){
+},{"../exception":19,"../utils":32}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5292,7 +4433,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":30}],35:[function(require,module,exports){
+},{"../exception":19}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5323,7 +4464,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":43}],36:[function(require,module,exports){
+},{"../utils":32}],25:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5351,7 +4492,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],37:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5365,7 +4506,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],38:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5400,7 +4541,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":43}],39:[function(require,module,exports){
+},{"../utils":32}],28:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5449,7 +4590,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":43}],40:[function(require,module,exports){
+},{"./utils":32}],29:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -5474,7 +4615,7 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],41:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5768,7 +4909,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":17,"./exception":30,"./utils":43}],42:[function(require,module,exports){
+},{"./base":6,"./exception":19,"./utils":32}],31:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -5785,7 +4926,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],43:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5911,7 +5052,7 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],44:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 // USAGE:
 // var handlebars = require('handlebars');
 /* eslint-disable no-var */
@@ -5938,7 +5079,7 @@ if (typeof require !== 'undefined' && require.extensions) {
   require.extensions['.hbs'] = extension;
 }
 
-},{"../dist/cjs/handlebars":15,"../dist/cjs/handlebars/compiler/printer":25,"fs":12}],45:[function(require,module,exports){
+},{"../dist/cjs/handlebars":4,"../dist/cjs/handlebars/compiler/printer":14,"fs":1}],34:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -5948,7 +5089,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":52,"./source-map/source-map-generator":53,"./source-map/source-node":54}],46:[function(require,module,exports){
+},{"./source-map/source-map-consumer":41,"./source-map/source-map-generator":42,"./source-map/source-node":43}],35:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -6057,7 +5198,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":55,"amdefine":56}],47:[function(require,module,exports){
+},{"./util":44,"amdefine":45}],36:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -6205,7 +5346,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":48,"amdefine":56}],48:[function(require,module,exports){
+},{"./base64":37,"amdefine":45}],37:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -6280,7 +5421,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":56}],49:[function(require,module,exports){
+},{"amdefine":45}],38:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -6399,7 +5540,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":56}],50:[function(require,module,exports){
+},{"amdefine":45}],39:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2014 Mozilla Foundation and contributors
@@ -6487,7 +5628,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":55,"amdefine":56}],51:[function(require,module,exports){
+},{"./util":44,"amdefine":45}],40:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -6609,7 +5750,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":56}],52:[function(require,module,exports){
+},{"amdefine":45}],41:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7688,7 +6829,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":46,"./base64-vlq":47,"./binary-search":49,"./quick-sort":51,"./util":55,"amdefine":56}],53:[function(require,module,exports){
+},{"./array-set":35,"./base64-vlq":36,"./binary-search":38,"./quick-sort":40,"./util":44,"amdefine":45}],42:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8089,7 +7230,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":46,"./base64-vlq":47,"./mapping-list":50,"./util":55,"amdefine":56}],54:[function(require,module,exports){
+},{"./array-set":35,"./base64-vlq":36,"./mapping-list":39,"./util":44,"amdefine":45}],43:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8505,7 +7646,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":53,"./util":55,"amdefine":56}],55:[function(require,module,exports){
+},{"./source-map-generator":42,"./util":44,"amdefine":45}],44:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8877,7 +8018,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":56}],56:[function(require,module,exports){
+},{"amdefine":45}],45:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 1.0.0 Copyright (c) 2011-2015, The Dojo Foundation All Rights Reserved.
@@ -9183,2326 +8324,7 @@ module.exports = amdefine;
 
 }).call(this,require('_process'),"/node_modules\\handlebars\\node_modules\\source-map\\node_modules\\amdefine\\amdefine.js")
 
-},{"_process":14,"path":13}],57:[function(require,module,exports){
-// Ion.RangeSlider
-// version 2.1.4 Build: 355
-// © Denis Ineshin, 2016
-// https://github.com/IonDen
-//
-// Project page:    http://ionden.com/a/plugins/ion.rangeSlider/en.html
-// GitHub page:     https://github.com/IonDen/ion.rangeSlider
-//
-// Released under MIT licence:
-// http://ionden.com/a/plugins/licence-en.html
-// =====================================================================================================================
-
-(function (factory) {
-    if (typeof define === 'function' && define.amd) {
-        define(['jquery'], function ($) {
-            factory($, document, window, navigator);
-        });
-    } else {
-        factory(jQuery, document, window, navigator);
-    }
-} (function ($, document, window, navigator, undefined) {
-    "use strict";
-
-    // =================================================================================================================
-    // Service
-
-    var plugin_count = 0;
-
-    // IE8 fix
-    var is_old_ie = (function () {
-        var n = navigator.userAgent,
-            r = /msie\s\d+/i,
-            v;
-        if (n.search(r) > 0) {
-            v = r.exec(n).toString();
-            v = v.split(" ")[1];
-            if (v < 9) {
-                $("html").addClass("lt-ie9");
-                return true;
-            }
-        }
-        return false;
-    } ());
-    if (!Function.prototype.bind) {
-        Function.prototype.bind = function bind(that) {
-
-            var target = this;
-            var slice = [].slice;
-
-            if (typeof target != "function") {
-                throw new TypeError();
-            }
-
-            var args = slice.call(arguments, 1),
-                bound = function () {
-
-                    if (this instanceof bound) {
-
-                        var F = function(){};
-                        F.prototype = target.prototype;
-                        var self = new F();
-
-                        var result = target.apply(
-                            self,
-                            args.concat(slice.call(arguments))
-                        );
-                        if (Object(result) === result) {
-                            return result;
-                        }
-                        return self;
-
-                    } else {
-
-                        return target.apply(
-                            that,
-                            args.concat(slice.call(arguments))
-                        );
-
-                    }
-
-                };
-
-            return bound;
-        };
-    }
-    if (!Array.prototype.indexOf) {
-        Array.prototype.indexOf = function(searchElement, fromIndex) {
-            var k;
-            if (this == null) {
-                throw new TypeError('"this" is null or not defined');
-            }
-            var O = Object(this);
-            var len = O.length >>> 0;
-            if (len === 0) {
-                return -1;
-            }
-            var n = +fromIndex || 0;
-            if (Math.abs(n) === Infinity) {
-                n = 0;
-            }
-            if (n >= len) {
-                return -1;
-            }
-            k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
-            while (k < len) {
-                if (k in O && O[k] === searchElement) {
-                    return k;
-                }
-                k++;
-            }
-            return -1;
-        };
-    }
-
-
-
-    // =================================================================================================================
-    // Template
-
-    var base_html =
-        '<span class="irs">' +
-        '<span class="irs-line" tabindex="-1"><span class="irs-line-left"></span><span class="irs-line-mid"></span><span class="irs-line-right"></span></span>' +
-        '<span class="irs-min">0</span><span class="irs-max">1</span>' +
-        '<span class="irs-from">0</span><span class="irs-to">0</span><span class="irs-single">0</span>' +
-        '</span>' +
-        '<span class="irs-grid"></span>' +
-        '<span class="irs-bar"></span>';
-
-    var single_html =
-        '<span class="irs-bar-edge"></span>' +
-        '<span class="irs-shadow shadow-single"></span>' +
-        '<span class="irs-slider single"></span>';
-
-    var double_html =
-        '<span class="irs-shadow shadow-from"></span>' +
-        '<span class="irs-shadow shadow-to"></span>' +
-        '<span class="irs-slider from"></span>' +
-        '<span class="irs-slider to"></span>';
-
-    var disable_html =
-        '<span class="irs-disable-mask"></span>';
-
-
-
-    // =================================================================================================================
-    // Core
-
-    /**
-     * Main plugin constructor
-     *
-     * @param input {Object} link to base input element
-     * @param options {Object} slider config
-     * @param plugin_count {Number}
-     * @constructor
-     */
-    var IonRangeSlider = function (input, options, plugin_count) {
-        this.VERSION = "2.1.4";
-        this.input = input;
-        this.plugin_count = plugin_count;
-        this.current_plugin = 0;
-        this.calc_count = 0;
-        this.update_tm = 0;
-        this.old_from = 0;
-        this.old_to = 0;
-        this.old_min_interval = null;
-        this.raf_id = null;
-        this.dragging = false;
-        this.force_redraw = false;
-        this.no_diapason = false;
-        this.is_key = false;
-        this.is_update = false;
-        this.is_start = true;
-        this.is_finish = false;
-        this.is_active = false;
-        this.is_resize = false;
-        this.is_click = false;
-
-        // cache for links to all DOM elements
-        this.$cache = {
-            win: $(window),
-            body: $(document.body),
-            input: $(input),
-            cont: null,
-            rs: null,
-            min: null,
-            max: null,
-            from: null,
-            to: null,
-            single: null,
-            bar: null,
-            line: null,
-            s_single: null,
-            s_from: null,
-            s_to: null,
-            shad_single: null,
-            shad_from: null,
-            shad_to: null,
-            edge: null,
-            grid: null,
-            grid_labels: []
-        };
-
-        // storage for measure variables
-        this.coords = {
-            // left
-            x_gap: 0,
-            x_pointer: 0,
-
-            // width
-            w_rs: 0,
-            w_rs_old: 0,
-            w_handle: 0,
-
-            // percents
-            p_gap: 0,
-            p_gap_left: 0,
-            p_gap_right: 0,
-            p_step: 0,
-            p_pointer: 0,
-            p_handle: 0,
-            p_single_fake: 0,
-            p_single_real: 0,
-            p_from_fake: 0,
-            p_from_real: 0,
-            p_to_fake: 0,
-            p_to_real: 0,
-            p_bar_x: 0,
-            p_bar_w: 0,
-
-            // grid
-            grid_gap: 0,
-            big_num: 0,
-            big: [],
-            big_w: [],
-            big_p: [],
-            big_x: []
-        };
-
-        // storage for labels measure variables
-        this.labels = {
-            // width
-            w_min: 0,
-            w_max: 0,
-            w_from: 0,
-            w_to: 0,
-            w_single: 0,
-
-            // percents
-            p_min: 0,
-            p_max: 0,
-            p_from_fake: 0,
-            p_from_left: 0,
-            p_to_fake: 0,
-            p_to_left: 0,
-            p_single_fake: 0,
-            p_single_left: 0
-        };
-
-
-
-        /**
-         * get and validate config
-         */
-        var $inp = this.$cache.input,
-            val = $inp.prop("value"),
-            config, config_from_data, prop;
-
-        // default config
-        config = {
-            type: "single",
-
-            min: 10,
-            max: 100,
-            from: null,
-            to: null,
-            step: 1,
-
-            min_interval: 0,
-            max_interval: 0,
-            drag_interval: false,
-
-            values: [],
-            p_values: [],
-
-            from_fixed: false,
-            from_min: null,
-            from_max: null,
-            from_shadow: false,
-
-            to_fixed: false,
-            to_min: null,
-            to_max: null,
-            to_shadow: false,
-
-            prettify_enabled: true,
-            prettify_separator: " ",
-            prettify: null,
-
-            force_edges: false,
-
-            keyboard: false,
-            keyboard_step: 5,
-
-            grid: false,
-            grid_margin: true,
-            grid_num: 4,
-            grid_snap: false,
-
-            hide_min_max: false,
-            hide_from_to: false,
-
-            prefix: "",
-            postfix: "",
-            max_postfix: "",
-            decorate_both: true,
-            values_separator: " — ",
-
-            input_values_separator: ";",
-
-            disable: false,
-
-            onStart: null,
-            onChange: null,
-            onFinish: null,
-            onUpdate: null
-        };
-
-
-
-        // config from data-attributes extends js config
-        config_from_data = {
-            type: $inp.data("type"),
-
-            min: $inp.data("min"),
-            max: $inp.data("max"),
-            from: $inp.data("from"),
-            to: $inp.data("to"),
-            step: $inp.data("step"),
-
-            min_interval: $inp.data("minInterval"),
-            max_interval: $inp.data("maxInterval"),
-            drag_interval: $inp.data("dragInterval"),
-
-            values: $inp.data("values"),
-
-            from_fixed: $inp.data("fromFixed"),
-            from_min: $inp.data("fromMin"),
-            from_max: $inp.data("fromMax"),
-            from_shadow: $inp.data("fromShadow"),
-
-            to_fixed: $inp.data("toFixed"),
-            to_min: $inp.data("toMin"),
-            to_max: $inp.data("toMax"),
-            to_shadow: $inp.data("toShadow"),
-
-            prettify_enabled: $inp.data("prettifyEnabled"),
-            prettify_separator: $inp.data("prettifySeparator"),
-
-            force_edges: $inp.data("forceEdges"),
-
-            keyboard: $inp.data("keyboard"),
-            keyboard_step: $inp.data("keyboardStep"),
-
-            grid: $inp.data("grid"),
-            grid_margin: $inp.data("gridMargin"),
-            grid_num: $inp.data("gridNum"),
-            grid_snap: $inp.data("gridSnap"),
-
-            hide_min_max: $inp.data("hideMinMax"),
-            hide_from_to: $inp.data("hideFromTo"),
-
-            prefix: $inp.data("prefix"),
-            postfix: $inp.data("postfix"),
-            max_postfix: $inp.data("maxPostfix"),
-            decorate_both: $inp.data("decorateBoth"),
-            values_separator: $inp.data("valuesSeparator"),
-
-            input_values_separator: $inp.data("inputValuesSeparator"),
-
-            disable: $inp.data("disable")
-        };
-        config_from_data.values = config_from_data.values && config_from_data.values.split(",");
-
-        for (prop in config_from_data) {
-            if (config_from_data.hasOwnProperty(prop)) {
-                if (!config_from_data[prop] && config_from_data[prop] !== 0) {
-                    delete config_from_data[prop];
-                }
-            }
-        }
-
-
-
-        // input value extends default config
-        if (val) {
-            val = val.split(config_from_data.input_values_separator || options.input_values_separator || ";");
-
-            if (val[0] && val[0] == +val[0]) {
-                val[0] = +val[0];
-            }
-            if (val[1] && val[1] == +val[1]) {
-                val[1] = +val[1];
-            }
-
-            if (options && options.values && options.values.length) {
-                config.from = val[0] && options.values.indexOf(val[0]);
-                config.to = val[1] && options.values.indexOf(val[1]);
-            } else {
-                config.from = val[0] && +val[0];
-                config.to = val[1] && +val[1];
-            }
-        }
-
-
-
-        // js config extends default config
-        $.extend(config, options);
-
-
-        // data config extends config
-        $.extend(config, config_from_data);
-        this.options = config;
-
-
-
-        // validate config, to be sure that all data types are correct
-        this.validate();
-
-
-
-        // default result object, returned to callbacks
-        this.result = {
-            input: this.$cache.input,
-            slider: null,
-
-            min: this.options.min,
-            max: this.options.max,
-
-            from: this.options.from,
-            from_percent: 0,
-            from_value: null,
-
-            to: this.options.to,
-            to_percent: 0,
-            to_value: null
-        };
-
-
-
-        this.init();
-    };
-
-    IonRangeSlider.prototype = {
-
-        /**
-         * Starts or updates the plugin instance
-         *
-         * @param is_update {boolean}
-         */
-        init: function (is_update) {
-            this.no_diapason = false;
-            this.coords.p_step = this.convertToPercent(this.options.step, true);
-
-            this.target = "base";
-
-            this.toggleInput();
-            this.append();
-            this.setMinMax();
-
-            if (is_update) {
-                this.force_redraw = true;
-                this.calc(true);
-
-                // callbacks called
-                this.callOnUpdate();
-            } else {
-                this.force_redraw = true;
-                this.calc(true);
-
-                // callbacks called
-                this.callOnStart();
-            }
-
-            this.updateScene();
-        },
-
-        /**
-         * Appends slider template to a DOM
-         */
-        append: function () {
-            var container_html = '<span class="irs js-irs-' + this.plugin_count + '"></span>';
-            this.$cache.input.before(container_html);
-            this.$cache.input.prop("readonly", true);
-            this.$cache.cont = this.$cache.input.prev();
-            this.result.slider = this.$cache.cont;
-
-            this.$cache.cont.html(base_html);
-            this.$cache.rs = this.$cache.cont.find(".irs");
-            this.$cache.min = this.$cache.cont.find(".irs-min");
-            this.$cache.max = this.$cache.cont.find(".irs-max");
-            this.$cache.from = this.$cache.cont.find(".irs-from");
-            this.$cache.to = this.$cache.cont.find(".irs-to");
-            this.$cache.single = this.$cache.cont.find(".irs-single");
-            this.$cache.bar = this.$cache.cont.find(".irs-bar");
-            this.$cache.line = this.$cache.cont.find(".irs-line");
-            this.$cache.grid = this.$cache.cont.find(".irs-grid");
-
-            if (this.options.type === "single") {
-                this.$cache.cont.append(single_html);
-                this.$cache.edge = this.$cache.cont.find(".irs-bar-edge");
-                this.$cache.s_single = this.$cache.cont.find(".single");
-                this.$cache.from[0].style.visibility = "hidden";
-                this.$cache.to[0].style.visibility = "hidden";
-                this.$cache.shad_single = this.$cache.cont.find(".shadow-single");
-            } else {
-                this.$cache.cont.append(double_html);
-                this.$cache.s_from = this.$cache.cont.find(".from");
-                this.$cache.s_to = this.$cache.cont.find(".to");
-                this.$cache.shad_from = this.$cache.cont.find(".shadow-from");
-                this.$cache.shad_to = this.$cache.cont.find(".shadow-to");
-
-                this.setTopHandler();
-            }
-
-            if (this.options.hide_from_to) {
-                this.$cache.from[0].style.display = "none";
-                this.$cache.to[0].style.display = "none";
-                this.$cache.single[0].style.display = "none";
-            }
-
-            this.appendGrid();
-
-            if (this.options.disable) {
-                this.appendDisableMask();
-                this.$cache.input[0].disabled = true;
-            } else {
-                this.$cache.cont.removeClass("irs-disabled");
-                this.$cache.input[0].disabled = false;
-                this.bindEvents();
-            }
-
-            if (this.options.drag_interval) {
-                this.$cache.bar[0].style.cursor = "ew-resize";
-            }
-        },
-
-        /**
-         * Determine which handler has a priority
-         * works only for double slider type
-         */
-        setTopHandler: function () {
-            var min = this.options.min,
-                max = this.options.max,
-                from = this.options.from,
-                to = this.options.to;
-
-            if (from > min && to === max) {
-                this.$cache.s_from.addClass("type_last");
-            } else if (to < max) {
-                this.$cache.s_to.addClass("type_last");
-            }
-        },
-
-        /**
-         * Determine which handles was clicked last
-         * and which handler should have hover effect
-         *
-         * @param target {String}
-         */
-        changeLevel: function (target) {
-            switch (target) {
-                case "single":
-                    this.coords.p_gap = this.toFixed(this.coords.p_pointer - this.coords.p_single_fake);
-                    break;
-                case "from":
-                    this.coords.p_gap = this.toFixed(this.coords.p_pointer - this.coords.p_from_fake);
-                    this.$cache.s_from.addClass("state_hover");
-                    this.$cache.s_from.addClass("type_last");
-                    this.$cache.s_to.removeClass("type_last");
-                    break;
-                case "to":
-                    this.coords.p_gap = this.toFixed(this.coords.p_pointer - this.coords.p_to_fake);
-                    this.$cache.s_to.addClass("state_hover");
-                    this.$cache.s_to.addClass("type_last");
-                    this.$cache.s_from.removeClass("type_last");
-                    break;
-                case "both":
-                    this.coords.p_gap_left = this.toFixed(this.coords.p_pointer - this.coords.p_from_fake);
-                    this.coords.p_gap_right = this.toFixed(this.coords.p_to_fake - this.coords.p_pointer);
-                    this.$cache.s_to.removeClass("type_last");
-                    this.$cache.s_from.removeClass("type_last");
-                    break;
-            }
-        },
-
-        /**
-         * Then slider is disabled
-         * appends extra layer with opacity
-         */
-        appendDisableMask: function () {
-            this.$cache.cont.append(disable_html);
-            this.$cache.cont.addClass("irs-disabled");
-        },
-
-        /**
-         * Remove slider instance
-         * and ubind all events
-         */
-        remove: function () {
-            this.$cache.cont.remove();
-            this.$cache.cont = null;
-
-            this.$cache.line.off("keydown.irs_" + this.plugin_count);
-
-            this.$cache.body.off("touchmove.irs_" + this.plugin_count);
-            this.$cache.body.off("mousemove.irs_" + this.plugin_count);
-
-            this.$cache.win.off("touchend.irs_" + this.plugin_count);
-            this.$cache.win.off("mouseup.irs_" + this.plugin_count);
-
-            if (is_old_ie) {
-                this.$cache.body.off("mouseup.irs_" + this.plugin_count);
-                this.$cache.body.off("mouseleave.irs_" + this.plugin_count);
-            }
-
-            this.$cache.grid_labels = [];
-            this.coords.big = [];
-            this.coords.big_w = [];
-            this.coords.big_p = [];
-            this.coords.big_x = [];
-
-            cancelAnimationFrame(this.raf_id);
-        },
-
-        /**
-         * bind all slider events
-         */
-        bindEvents: function () {
-            if (this.no_diapason) {
-                return;
-            }
-
-            this.$cache.body.on("touchmove.irs_" + this.plugin_count, this.pointerMove.bind(this));
-            this.$cache.body.on("mousemove.irs_" + this.plugin_count, this.pointerMove.bind(this));
-
-            this.$cache.win.on("touchend.irs_" + this.plugin_count, this.pointerUp.bind(this));
-            this.$cache.win.on("mouseup.irs_" + this.plugin_count, this.pointerUp.bind(this));
-
-            this.$cache.line.on("touchstart.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-            this.$cache.line.on("mousedown.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-
-            if (this.options.drag_interval && this.options.type === "double") {
-                this.$cache.bar.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "both"));
-                this.$cache.bar.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "both"));
-            } else {
-                this.$cache.bar.on("touchstart.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-                this.$cache.bar.on("mousedown.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-            }
-
-            if (this.options.type === "single") {
-                this.$cache.single.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "single"));
-                this.$cache.s_single.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "single"));
-                this.$cache.shad_single.on("touchstart.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-
-                this.$cache.single.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "single"));
-                this.$cache.s_single.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "single"));
-                this.$cache.edge.on("mousedown.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-                this.$cache.shad_single.on("mousedown.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-            } else {
-                this.$cache.single.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, null));
-                this.$cache.single.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, null));
-
-                this.$cache.from.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "from"));
-                this.$cache.s_from.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "from"));
-                this.$cache.to.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "to"));
-                this.$cache.s_to.on("touchstart.irs_" + this.plugin_count, this.pointerDown.bind(this, "to"));
-                this.$cache.shad_from.on("touchstart.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-                this.$cache.shad_to.on("touchstart.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-
-                this.$cache.from.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "from"));
-                this.$cache.s_from.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "from"));
-                this.$cache.to.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "to"));
-                this.$cache.s_to.on("mousedown.irs_" + this.plugin_count, this.pointerDown.bind(this, "to"));
-                this.$cache.shad_from.on("mousedown.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-                this.$cache.shad_to.on("mousedown.irs_" + this.plugin_count, this.pointerClick.bind(this, "click"));
-            }
-
-            if (this.options.keyboard) {
-                this.$cache.line.on("keydown.irs_" + this.plugin_count, this.key.bind(this, "keyboard"));
-            }
-
-            if (is_old_ie) {
-                this.$cache.body.on("mouseup.irs_" + this.plugin_count, this.pointerUp.bind(this));
-                this.$cache.body.on("mouseleave.irs_" + this.plugin_count, this.pointerUp.bind(this));
-            }
-        },
-
-        /**
-         * Mousemove or touchmove
-         * only for handlers
-         *
-         * @param e {Object} event object
-         */
-        pointerMove: function (e) {
-            if (!this.dragging) {
-                return;
-            }
-
-            var x = e.pageX || e.originalEvent.touches && e.originalEvent.touches[0].pageX;
-            this.coords.x_pointer = x - this.coords.x_gap;
-
-            this.calc();
-        },
-
-        /**
-         * Mouseup or touchend
-         * only for handlers
-         *
-         * @param e {Object} event object
-         */
-        pointerUp: function (e) {
-            if (this.current_plugin !== this.plugin_count) {
-                return;
-            }
-
-            if (this.is_active) {
-                this.is_active = false;
-            } else {
-                return;
-            }
-
-            this.$cache.cont.find(".state_hover").removeClass("state_hover");
-
-            this.force_redraw = true;
-
-            if (is_old_ie) {
-                $("*").prop("unselectable", false);
-            }
-
-            this.updateScene();
-            this.restoreOriginalMinInterval();
-
-            // callbacks call
-            if ($.contains(this.$cache.cont[0], e.target) || this.dragging) {
-                this.is_finish = true;
-                this.callOnFinish();
-            }
-            
-            this.dragging = false;
-        },
-
-        /**
-         * Mousedown or touchstart
-         * only for handlers
-         *
-         * @param target {String|null}
-         * @param e {Object} event object
-         */
-        pointerDown: function (target, e) {
-            e.preventDefault();
-            var x = e.pageX || e.originalEvent.touches && e.originalEvent.touches[0].pageX;
-            if (e.button === 2) {
-                return;
-            }
-
-            if (target === "both") {
-                this.setTempMinInterval();
-            }
-
-            if (!target) {
-                target = this.target;
-            }
-
-            this.current_plugin = this.plugin_count;
-            this.target = target;
-
-            this.is_active = true;
-            this.dragging = true;
-
-            this.coords.x_gap = this.$cache.rs.offset().left;
-            this.coords.x_pointer = x - this.coords.x_gap;
-
-            this.calcPointerPercent();
-            this.changeLevel(target);
-
-            if (is_old_ie) {
-                $("*").prop("unselectable", true);
-            }
-
-            this.$cache.line.trigger("focus");
-
-            this.updateScene();
-        },
-
-        /**
-         * Mousedown or touchstart
-         * for other slider elements, like diapason line
-         *
-         * @param target {String}
-         * @param e {Object} event object
-         */
-        pointerClick: function (target, e) {
-            e.preventDefault();
-            var x = e.pageX || e.originalEvent.touches && e.originalEvent.touches[0].pageX;
-            if (e.button === 2) {
-                return;
-            }
-
-            this.current_plugin = this.plugin_count;
-            this.target = target;
-
-            this.is_click = true;
-            this.coords.x_gap = this.$cache.rs.offset().left;
-            this.coords.x_pointer = +(x - this.coords.x_gap).toFixed();
-
-            this.force_redraw = true;
-            this.calc();
-
-            this.$cache.line.trigger("focus");
-        },
-
-        /**
-         * Keyborard controls for focused slider
-         *
-         * @param target {String}
-         * @param e {Object} event object
-         * @returns {boolean|undefined}
-         */
-        key: function (target, e) {
-            if (this.current_plugin !== this.plugin_count || e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
-                return;
-            }
-
-            switch (e.which) {
-                case 83: // W
-                case 65: // A
-                case 40: // DOWN
-                case 37: // LEFT
-                    e.preventDefault();
-                    this.moveByKey(false);
-                    break;
-
-                case 87: // S
-                case 68: // D
-                case 38: // UP
-                case 39: // RIGHT
-                    e.preventDefault();
-                    this.moveByKey(true);
-                    break;
-            }
-
-            return true;
-        },
-
-        /**
-         * Move by key. Beta
-         * @todo refactor than have plenty of time
-         *
-         * @param right {boolean} direction to move
-         */
-        moveByKey: function (right) {
-            var p = this.coords.p_pointer;
-
-            if (right) {
-                p += this.options.keyboard_step;
-            } else {
-                p -= this.options.keyboard_step;
-            }
-
-            this.coords.x_pointer = this.toFixed(this.coords.w_rs / 100 * p);
-            this.is_key = true;
-            this.calc();
-        },
-
-        /**
-         * Set visibility and content
-         * of Min and Max labels
-         */
-        setMinMax: function () {
-            if (!this.options) {
-                return;
-            }
-
-            if (this.options.hide_min_max) {
-                this.$cache.min[0].style.display = "none";
-                this.$cache.max[0].style.display = "none";
-                return;
-            }
-
-            if (this.options.values.length) {
-                this.$cache.min.html(this.decorate(this.options.p_values[this.options.min]));
-                this.$cache.max.html(this.decorate(this.options.p_values[this.options.max]));
-            } else {
-                this.$cache.min.html(this.decorate(this._prettify(this.options.min), this.options.min));
-                this.$cache.max.html(this.decorate(this._prettify(this.options.max), this.options.max));
-            }
-
-            this.labels.w_min = this.$cache.min.outerWidth(false);
-            this.labels.w_max = this.$cache.max.outerWidth(false);
-        },
-
-        /**
-         * Then dragging interval, prevent interval collapsing
-         * using min_interval option
-         */
-        setTempMinInterval: function () {
-            var interval = this.result.to - this.result.from;
-
-            if (this.old_min_interval === null) {
-                this.old_min_interval = this.options.min_interval;
-            }
-
-            this.options.min_interval = interval;
-        },
-
-        /**
-         * Restore min_interval option to original
-         */
-        restoreOriginalMinInterval: function () {
-            if (this.old_min_interval !== null) {
-                this.options.min_interval = this.old_min_interval;
-                this.old_min_interval = null;
-            }
-        },
-
-
-
-        // =============================================================================================================
-        // Calculations
-
-        /**
-         * All calculations and measures start here
-         *
-         * @param update {boolean=}
-         */
-        calc: function (update) {
-            if (!this.options) {
-                return;
-            }
-
-            this.calc_count++;
-
-            if (this.calc_count === 10 || update) {
-                this.calc_count = 0;
-                this.coords.w_rs = this.$cache.rs.outerWidth(false);
-
-                this.calcHandlePercent();
-            }
-
-            if (!this.coords.w_rs) {
-                return;
-            }
-
-            this.calcPointerPercent();
-            var handle_x = this.getHandleX();
-
-            if (this.target === "click") {
-                this.coords.p_gap = this.coords.p_handle / 2;
-                handle_x = this.getHandleX();
-
-                if (this.options.drag_interval) {
-                    this.target = "both_one";
-                } else {
-                    this.target = this.chooseHandle(handle_x);
-                }
-            }
-
-            switch (this.target) {
-                case "base":
-                    var w = (this.options.max - this.options.min) / 100,
-                        f = (this.result.from - this.options.min) / w,
-                        t = (this.result.to - this.options.min) / w;
-
-                    this.coords.p_single_real = this.toFixed(f);
-                    this.coords.p_from_real = this.toFixed(f);
-                    this.coords.p_to_real = this.toFixed(t);
-
-                    this.coords.p_single_real = this.checkDiapason(this.coords.p_single_real, this.options.from_min, this.options.from_max);
-                    this.coords.p_from_real = this.checkDiapason(this.coords.p_from_real, this.options.from_min, this.options.from_max);
-                    this.coords.p_to_real = this.checkDiapason(this.coords.p_to_real, this.options.to_min, this.options.to_max);
-
-                    this.coords.p_single_fake = this.convertToFakePercent(this.coords.p_single_real);
-                    this.coords.p_from_fake = this.convertToFakePercent(this.coords.p_from_real);
-                    this.coords.p_to_fake = this.convertToFakePercent(this.coords.p_to_real);
-
-                    this.target = null;
-
-                    break;
-
-                case "single":
-                    if (this.options.from_fixed) {
-                        break;
-                    }
-
-                    this.coords.p_single_real = this.convertToRealPercent(handle_x);
-                    this.coords.p_single_real = this.calcWithStep(this.coords.p_single_real);
-                    this.coords.p_single_real = this.checkDiapason(this.coords.p_single_real, this.options.from_min, this.options.from_max);
-
-                    this.coords.p_single_fake = this.convertToFakePercent(this.coords.p_single_real);
-
-                    break;
-
-                case "from":
-                    if (this.options.from_fixed) {
-                        break;
-                    }
-
-                    this.coords.p_from_real = this.convertToRealPercent(handle_x);
-                    this.coords.p_from_real = this.calcWithStep(this.coords.p_from_real);
-                    if (this.coords.p_from_real > this.coords.p_to_real) {
-                        this.coords.p_from_real = this.coords.p_to_real;
-                    }
-                    this.coords.p_from_real = this.checkDiapason(this.coords.p_from_real, this.options.from_min, this.options.from_max);
-                    this.coords.p_from_real = this.checkMinInterval(this.coords.p_from_real, this.coords.p_to_real, "from");
-                    this.coords.p_from_real = this.checkMaxInterval(this.coords.p_from_real, this.coords.p_to_real, "from");
-
-                    this.coords.p_from_fake = this.convertToFakePercent(this.coords.p_from_real);
-
-                    break;
-
-                case "to":
-                    if (this.options.to_fixed) {
-                        break;
-                    }
-
-                    this.coords.p_to_real = this.convertToRealPercent(handle_x);
-                    this.coords.p_to_real = this.calcWithStep(this.coords.p_to_real);
-                    if (this.coords.p_to_real < this.coords.p_from_real) {
-                        this.coords.p_to_real = this.coords.p_from_real;
-                    }
-                    this.coords.p_to_real = this.checkDiapason(this.coords.p_to_real, this.options.to_min, this.options.to_max);
-                    this.coords.p_to_real = this.checkMinInterval(this.coords.p_to_real, this.coords.p_from_real, "to");
-                    this.coords.p_to_real = this.checkMaxInterval(this.coords.p_to_real, this.coords.p_from_real, "to");
-
-                    this.coords.p_to_fake = this.convertToFakePercent(this.coords.p_to_real);
-
-                    break;
-
-                case "both":
-                    if (this.options.from_fixed || this.options.to_fixed) {
-                        break;
-                    }
-
-                    handle_x = this.toFixed(handle_x + (this.coords.p_handle * 0.1));
-
-                    this.coords.p_from_real = this.convertToRealPercent(handle_x) - this.coords.p_gap_left;
-                    this.coords.p_from_real = this.calcWithStep(this.coords.p_from_real);
-                    this.coords.p_from_real = this.checkDiapason(this.coords.p_from_real, this.options.from_min, this.options.from_max);
-                    this.coords.p_from_real = this.checkMinInterval(this.coords.p_from_real, this.coords.p_to_real, "from");
-                    this.coords.p_from_fake = this.convertToFakePercent(this.coords.p_from_real);
-
-                    this.coords.p_to_real = this.convertToRealPercent(handle_x) + this.coords.p_gap_right;
-                    this.coords.p_to_real = this.calcWithStep(this.coords.p_to_real);
-                    this.coords.p_to_real = this.checkDiapason(this.coords.p_to_real, this.options.to_min, this.options.to_max);
-                    this.coords.p_to_real = this.checkMinInterval(this.coords.p_to_real, this.coords.p_from_real, "to");
-                    this.coords.p_to_fake = this.convertToFakePercent(this.coords.p_to_real);
-
-                    break;
-
-                case "both_one":
-                    if (this.options.from_fixed || this.options.to_fixed) {
-                        break;
-                    }
-
-                    var real_x = this.convertToRealPercent(handle_x),
-                        from = this.result.from_percent,
-                        to = this.result.to_percent,
-                        full = to - from,
-                        half = full / 2,
-                        new_from = real_x - half,
-                        new_to = real_x + half;
-
-                    if (new_from < 0) {
-                        new_from = 0;
-                        new_to = new_from + full;
-                    }
-
-                    if (new_to > 100) {
-                        new_to = 100;
-                        new_from = new_to - full;
-                    }
-
-                    this.coords.p_from_real = this.calcWithStep(new_from);
-                    this.coords.p_from_real = this.checkDiapason(this.coords.p_from_real, this.options.from_min, this.options.from_max);
-                    this.coords.p_from_fake = this.convertToFakePercent(this.coords.p_from_real);
-
-                    this.coords.p_to_real = this.calcWithStep(new_to);
-                    this.coords.p_to_real = this.checkDiapason(this.coords.p_to_real, this.options.to_min, this.options.to_max);
-                    this.coords.p_to_fake = this.convertToFakePercent(this.coords.p_to_real);
-
-                    break;
-            }
-
-            if (this.options.type === "single") {
-                this.coords.p_bar_x = (this.coords.p_handle / 2);
-                this.coords.p_bar_w = this.coords.p_single_fake;
-
-                this.result.from_percent = this.coords.p_single_real;
-                this.result.from = this.convertToValue(this.coords.p_single_real);
-
-                if (this.options.values.length) {
-                    this.result.from_value = this.options.values[this.result.from];
-                }
-            } else {
-                this.coords.p_bar_x = this.toFixed(this.coords.p_from_fake + (this.coords.p_handle / 2));
-                this.coords.p_bar_w = this.toFixed(this.coords.p_to_fake - this.coords.p_from_fake);
-
-                this.result.from_percent = this.coords.p_from_real;
-                this.result.from = this.convertToValue(this.coords.p_from_real);
-                this.result.to_percent = this.coords.p_to_real;
-                this.result.to = this.convertToValue(this.coords.p_to_real);
-
-                if (this.options.values.length) {
-                    this.result.from_value = this.options.values[this.result.from];
-                    this.result.to_value = this.options.values[this.result.to];
-                }
-            }
-
-            this.calcMinMax();
-            this.calcLabels();
-        },
-
-
-        /**
-         * calculates pointer X in percent
-         */
-        calcPointerPercent: function () {
-            if (!this.coords.w_rs) {
-                this.coords.p_pointer = 0;
-                return;
-            }
-
-            if (this.coords.x_pointer < 0 || isNaN(this.coords.x_pointer)  ) {
-                this.coords.x_pointer = 0;
-            } else if (this.coords.x_pointer > this.coords.w_rs) {
-                this.coords.x_pointer = this.coords.w_rs;
-            }
-
-            this.coords.p_pointer = this.toFixed(this.coords.x_pointer / this.coords.w_rs * 100);
-        },
-
-        convertToRealPercent: function (fake) {
-            var full = 100 - this.coords.p_handle;
-            return fake / full * 100;
-        },
-
-        convertToFakePercent: function (real) {
-            var full = 100 - this.coords.p_handle;
-            return real / 100 * full;
-        },
-
-        getHandleX: function () {
-            var max = 100 - this.coords.p_handle,
-                x = this.toFixed(this.coords.p_pointer - this.coords.p_gap);
-
-            if (x < 0) {
-                x = 0;
-            } else if (x > max) {
-                x = max;
-            }
-
-            return x;
-        },
-
-        calcHandlePercent: function () {
-            if (this.options.type === "single") {
-                this.coords.w_handle = this.$cache.s_single.outerWidth(false);
-            } else {
-                this.coords.w_handle = this.$cache.s_from.outerWidth(false);
-            }
-
-            this.coords.p_handle = this.toFixed(this.coords.w_handle / this.coords.w_rs * 100);
-        },
-
-        /**
-         * Find closest handle to pointer click
-         *
-         * @param real_x {Number}
-         * @returns {String}
-         */
-        chooseHandle: function (real_x) {
-            if (this.options.type === "single") {
-                return "single";
-            } else {
-                var m_point = this.coords.p_from_real + ((this.coords.p_to_real - this.coords.p_from_real) / 2);
-                if (real_x >= m_point) {
-                    return this.options.to_fixed ? "from" : "to";
-                } else {
-                    return this.options.from_fixed ? "to" : "from";
-                }
-            }
-        },
-
-        /**
-         * Measure Min and Max labels width in percent
-         */
-        calcMinMax: function () {
-            if (!this.coords.w_rs) {
-                return;
-            }
-
-            this.labels.p_min = this.labels.w_min / this.coords.w_rs * 100;
-            this.labels.p_max = this.labels.w_max / this.coords.w_rs * 100;
-        },
-
-        /**
-         * Measure labels width and X in percent
-         */
-        calcLabels: function () {
-            if (!this.coords.w_rs || this.options.hide_from_to) {
-                return;
-            }
-
-            if (this.options.type === "single") {
-
-                this.labels.w_single = this.$cache.single.outerWidth(false);
-                this.labels.p_single_fake = this.labels.w_single / this.coords.w_rs * 100;
-                this.labels.p_single_left = this.coords.p_single_fake + (this.coords.p_handle / 2) - (this.labels.p_single_fake / 2);
-                this.labels.p_single_left = this.checkEdges(this.labels.p_single_left, this.labels.p_single_fake);
-
-            } else {
-
-                this.labels.w_from = this.$cache.from.outerWidth(false);
-                this.labels.p_from_fake = this.labels.w_from / this.coords.w_rs * 100;
-                this.labels.p_from_left = this.coords.p_from_fake + (this.coords.p_handle / 2) - (this.labels.p_from_fake / 2);
-                this.labels.p_from_left = this.toFixed(this.labels.p_from_left);
-                this.labels.p_from_left = this.checkEdges(this.labels.p_from_left, this.labels.p_from_fake);
-
-                this.labels.w_to = this.$cache.to.outerWidth(false);
-                this.labels.p_to_fake = this.labels.w_to / this.coords.w_rs * 100;
-                this.labels.p_to_left = this.coords.p_to_fake + (this.coords.p_handle / 2) - (this.labels.p_to_fake / 2);
-                this.labels.p_to_left = this.toFixed(this.labels.p_to_left);
-                this.labels.p_to_left = this.checkEdges(this.labels.p_to_left, this.labels.p_to_fake);
-
-                this.labels.w_single = this.$cache.single.outerWidth(false);
-                this.labels.p_single_fake = this.labels.w_single / this.coords.w_rs * 100;
-                this.labels.p_single_left = ((this.labels.p_from_left + this.labels.p_to_left + this.labels.p_to_fake) / 2) - (this.labels.p_single_fake / 2);
-                this.labels.p_single_left = this.toFixed(this.labels.p_single_left);
-                this.labels.p_single_left = this.checkEdges(this.labels.p_single_left, this.labels.p_single_fake);
-
-            }
-        },
-
-
-
-        // =============================================================================================================
-        // Drawings
-
-        /**
-         * Main function called in request animation frame
-         * to update everything
-         */
-        updateScene: function () {
-            if (this.raf_id) {
-                cancelAnimationFrame(this.raf_id);
-                this.raf_id = null;
-            }
-
-            clearTimeout(this.update_tm);
-            this.update_tm = null;
-
-            if (!this.options) {
-                return;
-            }
-
-            this.drawHandles();
-
-            if (this.is_active) {
-                this.raf_id = requestAnimationFrame(this.updateScene.bind(this));
-            } else {
-                this.update_tm = setTimeout(this.updateScene.bind(this), 300);
-            }
-        },
-
-        /**
-         * Draw handles
-         */
-        drawHandles: function () {
-            this.coords.w_rs = this.$cache.rs.outerWidth(false);
-
-            if (!this.coords.w_rs) {
-                return;
-            }
-
-            if (this.coords.w_rs !== this.coords.w_rs_old) {
-                this.target = "base";
-                this.is_resize = true;
-            }
-
-            if (this.coords.w_rs !== this.coords.w_rs_old || this.force_redraw) {
-                this.setMinMax();
-                this.calc(true);
-                this.drawLabels();
-                if (this.options.grid) {
-                    this.calcGridMargin();
-                    this.calcGridLabels();
-                }
-                this.force_redraw = true;
-                this.coords.w_rs_old = this.coords.w_rs;
-                this.drawShadow();
-            }
-
-            if (!this.coords.w_rs) {
-                return;
-            }
-
-            if (!this.dragging && !this.force_redraw && !this.is_key) {
-                return;
-            }
-
-            if (this.old_from !== this.result.from || this.old_to !== this.result.to || this.force_redraw || this.is_key) {
-
-                this.drawLabels();
-
-                this.$cache.bar[0].style.left = this.coords.p_bar_x + "%";
-                this.$cache.bar[0].style.width = this.coords.p_bar_w + "%";
-
-                if (this.options.type === "single") {
-                    this.$cache.s_single[0].style.left = this.coords.p_single_fake + "%";
-
-                    this.$cache.single[0].style.left = this.labels.p_single_left + "%";
-
-                    if (this.options.values.length) {
-                        this.$cache.input.prop("value", this.result.from_value);
-                    } else {
-                        this.$cache.input.prop("value", this.result.from);
-                    }
-                    this.$cache.input.data("from", this.result.from);
-                } else {
-                    this.$cache.s_from[0].style.left = this.coords.p_from_fake + "%";
-                    this.$cache.s_to[0].style.left = this.coords.p_to_fake + "%";
-
-                    if (this.old_from !== this.result.from || this.force_redraw) {
-                        this.$cache.from[0].style.left = this.labels.p_from_left + "%";
-                    }
-                    if (this.old_to !== this.result.to || this.force_redraw) {
-                        this.$cache.to[0].style.left = this.labels.p_to_left + "%";
-                    }
-
-                    this.$cache.single[0].style.left = this.labels.p_single_left + "%";
-
-                    if (this.options.values.length) {
-                        this.$cache.input.prop("value", this.result.from_value + this.options.input_values_separator + this.result.to_value);
-                    } else {
-                        this.$cache.input.prop("value", this.result.from + this.options.input_values_separator + this.result.to);
-                    }
-                    this.$cache.input.data("from", this.result.from);
-                    this.$cache.input.data("to", this.result.to);
-                }
-
-                if ((this.old_from !== this.result.from || this.old_to !== this.result.to) && !this.is_start) {
-                    this.$cache.input.trigger("change");
-                }
-
-                this.old_from = this.result.from;
-                this.old_to = this.result.to;
-
-                // callbacks call
-                if (!this.is_resize && !this.is_update && !this.is_start && !this.is_finish) {
-                    this.callOnChange();
-                }
-                if (this.is_key || this.is_click) {
-                    this.is_key = false;
-                    this.is_click = false;
-                    this.callOnFinish();
-                }
-
-                this.is_update = false;
-                this.is_resize = false;
-                this.is_finish = false;
-            }
-
-            this.is_start = false;
-            this.is_key = false;
-            this.is_click = false;
-            this.force_redraw = false;
-        },
-
-        /**
-         * Draw labels
-         * measure labels collisions
-         * collapse close labels
-         */
-        drawLabels: function () {
-            if (!this.options) {
-                return;
-            }
-
-            var values_num = this.options.values.length,
-                p_values = this.options.p_values,
-                text_single,
-                text_from,
-                text_to;
-
-            if (this.options.hide_from_to) {
-                return;
-            }
-
-            if (this.options.type === "single") {
-
-                if (values_num) {
-                    text_single = this.decorate(p_values[this.result.from]);
-                    this.$cache.single.html(text_single);
-                } else {
-                    text_single = this.decorate(this._prettify(this.result.from), this.result.from);
-                    this.$cache.single.html(text_single);
-                }
-
-                this.calcLabels();
-
-                if (this.labels.p_single_left < this.labels.p_min + 1) {
-                    this.$cache.min[0].style.visibility = "hidden";
-                } else {
-                    this.$cache.min[0].style.visibility = "visible";
-                }
-
-                if (this.labels.p_single_left + this.labels.p_single_fake > 100 - this.labels.p_max - 1) {
-                    this.$cache.max[0].style.visibility = "hidden";
-                } else {
-                    this.$cache.max[0].style.visibility = "visible";
-                }
-
-            } else {
-
-                if (values_num) {
-
-                    if (this.options.decorate_both) {
-                        text_single = this.decorate(p_values[this.result.from]);
-                        text_single += this.options.values_separator;
-                        text_single += this.decorate(p_values[this.result.to]);
-                    } else {
-                        text_single = this.decorate(p_values[this.result.from] + this.options.values_separator + p_values[this.result.to]);
-                    }
-                    text_from = this.decorate(p_values[this.result.from]);
-                    text_to = this.decorate(p_values[this.result.to]);
-
-                    this.$cache.single.html(text_single);
-                    this.$cache.from.html(text_from);
-                    this.$cache.to.html(text_to);
-
-                } else {
-
-                    if (this.options.decorate_both) {
-                        text_single = this.decorate(this._prettify(this.result.from), this.result.from);
-                        text_single += this.options.values_separator;
-                        text_single += this.decorate(this._prettify(this.result.to), this.result.to);
-                    } else {
-                        text_single = this.decorate(this._prettify(this.result.from) + this.options.values_separator + this._prettify(this.result.to), this.result.to);
-                    }
-                    text_from = this.decorate(this._prettify(this.result.from), this.result.from);
-                    text_to = this.decorate(this._prettify(this.result.to), this.result.to);
-
-                    this.$cache.single.html(text_single);
-                    this.$cache.from.html(text_from);
-                    this.$cache.to.html(text_to);
-
-                }
-
-                this.calcLabels();
-
-                var min = Math.min(this.labels.p_single_left, this.labels.p_from_left),
-                    single_left = this.labels.p_single_left + this.labels.p_single_fake,
-                    to_left = this.labels.p_to_left + this.labels.p_to_fake,
-                    max = Math.max(single_left, to_left);
-
-                if (this.labels.p_from_left + this.labels.p_from_fake >= this.labels.p_to_left) {
-                    this.$cache.from[0].style.visibility = "hidden";
-                    this.$cache.to[0].style.visibility = "hidden";
-                    this.$cache.single[0].style.visibility = "visible";
-
-                    if (this.result.from === this.result.to) {
-                        if (this.target === "from") {
-                            this.$cache.from[0].style.visibility = "visible";
-                        } else if (this.target === "to") {
-                            this.$cache.to[0].style.visibility = "visible";
-                        } else if (!this.target) {
-                            this.$cache.from[0].style.visibility = "visible";
-                        }
-                        this.$cache.single[0].style.visibility = "hidden";
-                        max = to_left;
-                    } else {
-                        this.$cache.from[0].style.visibility = "hidden";
-                        this.$cache.to[0].style.visibility = "hidden";
-                        this.$cache.single[0].style.visibility = "visible";
-                        max = Math.max(single_left, to_left);
-                    }
-                } else {
-                    this.$cache.from[0].style.visibility = "visible";
-                    this.$cache.to[0].style.visibility = "visible";
-                    this.$cache.single[0].style.visibility = "hidden";
-                }
-
-                if (min < this.labels.p_min + 1) {
-                    this.$cache.min[0].style.visibility = "hidden";
-                } else {
-                    this.$cache.min[0].style.visibility = "visible";
-                }
-
-                if (max > 100 - this.labels.p_max - 1) {
-                    this.$cache.max[0].style.visibility = "hidden";
-                } else {
-                    this.$cache.max[0].style.visibility = "visible";
-                }
-
-            }
-        },
-
-        /**
-         * Draw shadow intervals
-         */
-        drawShadow: function () {
-            var o = this.options,
-                c = this.$cache,
-
-                is_from_min = typeof o.from_min === "number" && !isNaN(o.from_min),
-                is_from_max = typeof o.from_max === "number" && !isNaN(o.from_max),
-                is_to_min = typeof o.to_min === "number" && !isNaN(o.to_min),
-                is_to_max = typeof o.to_max === "number" && !isNaN(o.to_max),
-
-                from_min,
-                from_max,
-                to_min,
-                to_max;
-
-            if (o.type === "single") {
-                if (o.from_shadow && (is_from_min || is_from_max)) {
-                    from_min = this.convertToPercent(is_from_min ? o.from_min : o.min);
-                    from_max = this.convertToPercent(is_from_max ? o.from_max : o.max) - from_min;
-                    from_min = this.toFixed(from_min - (this.coords.p_handle / 100 * from_min));
-                    from_max = this.toFixed(from_max - (this.coords.p_handle / 100 * from_max));
-                    from_min = from_min + (this.coords.p_handle / 2);
-
-                    c.shad_single[0].style.display = "block";
-                    c.shad_single[0].style.left = from_min + "%";
-                    c.shad_single[0].style.width = from_max + "%";
-                } else {
-                    c.shad_single[0].style.display = "none";
-                }
-            } else {
-                if (o.from_shadow && (is_from_min || is_from_max)) {
-                    from_min = this.convertToPercent(is_from_min ? o.from_min : o.min);
-                    from_max = this.convertToPercent(is_from_max ? o.from_max : o.max) - from_min;
-                    from_min = this.toFixed(from_min - (this.coords.p_handle / 100 * from_min));
-                    from_max = this.toFixed(from_max - (this.coords.p_handle / 100 * from_max));
-                    from_min = from_min + (this.coords.p_handle / 2);
-
-                    c.shad_from[0].style.display = "block";
-                    c.shad_from[0].style.left = from_min + "%";
-                    c.shad_from[0].style.width = from_max + "%";
-                } else {
-                    c.shad_from[0].style.display = "none";
-                }
-
-                if (o.to_shadow && (is_to_min || is_to_max)) {
-                    to_min = this.convertToPercent(is_to_min ? o.to_min : o.min);
-                    to_max = this.convertToPercent(is_to_max ? o.to_max : o.max) - to_min;
-                    to_min = this.toFixed(to_min - (this.coords.p_handle / 100 * to_min));
-                    to_max = this.toFixed(to_max - (this.coords.p_handle / 100 * to_max));
-                    to_min = to_min + (this.coords.p_handle / 2);
-
-                    c.shad_to[0].style.display = "block";
-                    c.shad_to[0].style.left = to_min + "%";
-                    c.shad_to[0].style.width = to_max + "%";
-                } else {
-                    c.shad_to[0].style.display = "none";
-                }
-            }
-        },
-
-
-
-        // =============================================================================================================
-        // Callbacks
-
-        callOnStart: function () {
-            if (this.options.onStart && typeof this.options.onStart === "function") {
-                this.options.onStart(this.result);
-            }
-        },
-        callOnChange: function () {
-            if (this.options.onChange && typeof this.options.onChange === "function") {
-                this.options.onChange(this.result);
-            }
-        },
-        callOnFinish: function () {
-            if (this.options.onFinish && typeof this.options.onFinish === "function") {
-                this.options.onFinish(this.result);
-            }
-        },
-        callOnUpdate: function () {
-            if (this.options.onUpdate && typeof this.options.onUpdate === "function") {
-                this.options.onUpdate(this.result);
-            }
-        },
-
-
-
-        // =============================================================================================================
-        // Service methods
-
-        toggleInput: function () {
-            this.$cache.input.toggleClass("irs-hidden-input");
-        },
-
-        /**
-         * Convert real value to percent
-         *
-         * @param value {Number} X in real
-         * @param no_min {boolean=} don't use min value
-         * @returns {Number} X in percent
-         */
-        convertToPercent: function (value, no_min) {
-            var diapason = this.options.max - this.options.min,
-                one_percent = diapason / 100,
-                val, percent;
-
-            if (!diapason) {
-                this.no_diapason = true;
-                return 0;
-            }
-
-            if (no_min) {
-                val = value;
-            } else {
-                val = value - this.options.min;
-            }
-
-            percent = val / one_percent;
-
-            return this.toFixed(percent);
-        },
-
-        /**
-         * Convert percent to real values
-         *
-         * @param percent {Number} X in percent
-         * @returns {Number} X in real
-         */
-        convertToValue: function (percent) {
-            var min = this.options.min,
-                max = this.options.max,
-                min_decimals = min.toString().split(".")[1],
-                max_decimals = max.toString().split(".")[1],
-                min_length, max_length,
-                avg_decimals = 0,
-                abs = 0;
-
-            if (percent === 0) {
-                return this.options.min;
-            }
-            if (percent === 100) {
-                return this.options.max;
-            }
-
-
-            if (min_decimals) {
-                min_length = min_decimals.length;
-                avg_decimals = min_length;
-            }
-            if (max_decimals) {
-                max_length = max_decimals.length;
-                avg_decimals = max_length;
-            }
-            if (min_length && max_length) {
-                avg_decimals = (min_length >= max_length) ? min_length : max_length;
-            }
-
-            if (min < 0) {
-                abs = Math.abs(min);
-                min = +(min + abs).toFixed(avg_decimals);
-                max = +(max + abs).toFixed(avg_decimals);
-            }
-
-            var number = ((max - min) / 100 * percent) + min,
-                string = this.options.step.toString().split(".")[1],
-                result;
-
-            if (string) {
-                number = +number.toFixed(string.length);
-            } else {
-                number = number / this.options.step;
-                number = number * this.options.step;
-
-                number = +number.toFixed(0);
-            }
-
-            if (abs) {
-                number -= abs;
-            }
-
-            if (string) {
-                result = +number.toFixed(string.length);
-            } else {
-                result = this.toFixed(number);
-            }
-
-            if (result < this.options.min) {
-                result = this.options.min;
-            } else if (result > this.options.max) {
-                result = this.options.max;
-            }
-
-            return result;
-        },
-
-        /**
-         * Round percent value with step
-         *
-         * @param percent {Number}
-         * @returns percent {Number} rounded
-         */
-        calcWithStep: function (percent) {
-            var rounded = Math.round(percent / this.coords.p_step) * this.coords.p_step;
-
-            if (rounded > 100) {
-                rounded = 100;
-            }
-            if (percent === 100) {
-                rounded = 100;
-            }
-
-            return this.toFixed(rounded);
-        },
-
-        checkMinInterval: function (p_current, p_next, type) {
-            var o = this.options,
-                current,
-                next;
-
-            if (!o.min_interval) {
-                return p_current;
-            }
-
-            current = this.convertToValue(p_current);
-            next = this.convertToValue(p_next);
-
-            if (type === "from") {
-
-                if (next - current < o.min_interval) {
-                    current = next - o.min_interval;
-                }
-
-            } else {
-
-                if (current - next < o.min_interval) {
-                    current = next + o.min_interval;
-                }
-
-            }
-
-            return this.convertToPercent(current);
-        },
-
-        checkMaxInterval: function (p_current, p_next, type) {
-            var o = this.options,
-                current,
-                next;
-
-            if (!o.max_interval) {
-                return p_current;
-            }
-
-            current = this.convertToValue(p_current);
-            next = this.convertToValue(p_next);
-
-            if (type === "from") {
-
-                if (next - current > o.max_interval) {
-                    current = next - o.max_interval;
-                }
-
-            } else {
-
-                if (current - next > o.max_interval) {
-                    current = next + o.max_interval;
-                }
-
-            }
-
-            return this.convertToPercent(current);
-        },
-
-        checkDiapason: function (p_num, min, max) {
-            var num = this.convertToValue(p_num),
-                o = this.options;
-
-            if (typeof min !== "number") {
-                min = o.min;
-            }
-
-            if (typeof max !== "number") {
-                max = o.max;
-            }
-
-            if (num < min) {
-                num = min;
-            }
-
-            if (num > max) {
-                num = max;
-            }
-
-            return this.convertToPercent(num);
-        },
-
-        toFixed: function (num) {
-            num = num.toFixed(9);
-            return +num;
-        },
-
-        _prettify: function (num) {
-            if (!this.options.prettify_enabled) {
-                return num;
-            }
-
-            if (this.options.prettify && typeof this.options.prettify === "function") {
-                return this.options.prettify(num);
-            } else {
-                return this.prettify(num);
-            }
-        },
-
-        prettify: function (num) {
-            var n = num.toString();
-            return n.replace(/(\d{1,3}(?=(?:\d\d\d)+(?!\d)))/g, "$1" + this.options.prettify_separator);
-        },
-
-        checkEdges: function (left, width) {
-            if (!this.options.force_edges) {
-                return this.toFixed(left);
-            }
-
-            if (left < 0) {
-                left = 0;
-            } else if (left > 100 - width) {
-                left = 100 - width;
-            }
-
-            return this.toFixed(left);
-        },
-
-        validate: function () {
-            var o = this.options,
-                r = this.result,
-                v = o.values,
-                vl = v.length,
-                value,
-                i;
-
-            if (typeof o.min === "string") o.min = +o.min;
-            if (typeof o.max === "string") o.max = +o.max;
-            if (typeof o.from === "string") o.from = +o.from;
-            if (typeof o.to === "string") o.to = +o.to;
-            if (typeof o.step === "string") o.step = +o.step;
-
-            if (typeof o.from_min === "string") o.from_min = +o.from_min;
-            if (typeof o.from_max === "string") o.from_max = +o.from_max;
-            if (typeof o.to_min === "string") o.to_min = +o.to_min;
-            if (typeof o.to_max === "string") o.to_max = +o.to_max;
-
-            if (typeof o.keyboard_step === "string") o.keyboard_step = +o.keyboard_step;
-            if (typeof o.grid_num === "string") o.grid_num = +o.grid_num;
-
-            if (o.max < o.min) {
-                o.max = o.min;
-            }
-
-            if (vl) {
-                o.p_values = [];
-                o.min = 0;
-                o.max = vl - 1;
-                o.step = 1;
-                o.grid_num = o.max;
-                o.grid_snap = true;
-
-
-                for (i = 0; i < vl; i++) {
-                    value = +v[i];
-
-                    if (!isNaN(value)) {
-                        v[i] = value;
-                        value = this._prettify(value);
-                    } else {
-                        value = v[i];
-                    }
-
-                    o.p_values.push(value);
-                }
-            }
-
-            if (typeof o.from !== "number" || isNaN(o.from)) {
-                o.from = o.min;
-            }
-
-            if (typeof o.to !== "number" || isNaN(o.from)) {
-                o.to = o.max;
-            }
-
-            if (o.type === "single") {
-
-                if (o.from < o.min) {
-                    o.from = o.min;
-                }
-
-                if (o.from > o.max) {
-                    o.from = o.max;
-                }
-
-            } else {
-
-                if (o.from < o.min || o.from > o.max) {
-                    o.from = o.min;
-                }
-                if (o.to > o.max || o.to < o.min) {
-                    o.to = o.max;
-                }
-                if (o.from > o.to) {
-                    o.from = o.to;
-                }
-
-            }
-
-            if (typeof o.step !== "number" || isNaN(o.step) || !o.step || o.step < 0) {
-                o.step = 1;
-            }
-
-            if (typeof o.keyboard_step !== "number" || isNaN(o.keyboard_step) || !o.keyboard_step || o.keyboard_step < 0) {
-                o.keyboard_step = 5;
-            }
-
-            if (typeof o.from_min === "number" && o.from < o.from_min) {
-                o.from = o.from_min;
-            }
-
-            if (typeof o.from_max === "number" && o.from > o.from_max) {
-                o.from = o.from_max;
-            }
-
-            if (typeof o.to_min === "number" && o.to < o.to_min) {
-                o.to = o.to_min;
-            }
-
-            if (typeof o.to_max === "number" && o.from > o.to_max) {
-                o.to = o.to_max;
-            }
-
-            if (r) {
-                if (r.min !== o.min) {
-                    r.min = o.min;
-                }
-
-                if (r.max !== o.max) {
-                    r.max = o.max;
-                }
-
-                if (r.from < r.min || r.from > r.max) {
-                    r.from = o.from;
-                }
-
-                if (r.to < r.min || r.to > r.max) {
-                    r.to = o.to;
-                }
-            }
-
-            if (typeof o.min_interval !== "number" || isNaN(o.min_interval) || !o.min_interval || o.min_interval < 0) {
-                o.min_interval = 0;
-            }
-
-            if (typeof o.max_interval !== "number" || isNaN(o.max_interval) || !o.max_interval || o.max_interval < 0) {
-                o.max_interval = 0;
-            }
-
-            if (o.min_interval && o.min_interval > o.max - o.min) {
-                o.min_interval = o.max - o.min;
-            }
-
-            if (o.max_interval && o.max_interval > o.max - o.min) {
-                o.max_interval = o.max - o.min;
-            }
-        },
-
-        decorate: function (num, original) {
-            var decorated = "",
-                o = this.options;
-
-            if (o.prefix) {
-                decorated += o.prefix;
-            }
-
-            decorated += num;
-
-            if (o.max_postfix) {
-                if (o.values.length && num === o.p_values[o.max]) {
-                    decorated += o.max_postfix;
-                    if (o.postfix) {
-                        decorated += " ";
-                    }
-                } else if (original === o.max) {
-                    decorated += o.max_postfix;
-                    if (o.postfix) {
-                        decorated += " ";
-                    }
-                }
-            }
-
-            if (o.postfix) {
-                decorated += o.postfix;
-            }
-
-            return decorated;
-        },
-
-        updateFrom: function () {
-            this.result.from = this.options.from;
-            this.result.from_percent = this.convertToPercent(this.result.from);
-            if (this.options.values) {
-                this.result.from_value = this.options.values[this.result.from];
-            }
-        },
-
-        updateTo: function () {
-            this.result.to = this.options.to;
-            this.result.to_percent = this.convertToPercent(this.result.to);
-            if (this.options.values) {
-                this.result.to_value = this.options.values[this.result.to];
-            }
-        },
-
-        updateResult: function () {
-            this.result.min = this.options.min;
-            this.result.max = this.options.max;
-            this.updateFrom();
-            this.updateTo();
-        },
-
-
-        // =============================================================================================================
-        // Grid
-
-        appendGrid: function () {
-            if (!this.options.grid) {
-                return;
-            }
-
-            var o = this.options,
-                i, z,
-
-                total = o.max - o.min,
-                big_num = o.grid_num,
-                big_p = 0,
-                big_w = 0,
-
-                small_max = 4,
-                local_small_max,
-                small_p,
-                small_w = 0,
-
-                result,
-                html = '';
-
-
-
-            this.calcGridMargin();
-
-            if (o.grid_snap) {
-                big_num = total / o.step;
-                big_p = this.toFixed(o.step / (total / 100));
-            } else {
-                big_p = this.toFixed(100 / big_num);
-            }
-
-            if (big_num > 4) {
-                small_max = 3;
-            }
-            if (big_num > 7) {
-                small_max = 2;
-            }
-            if (big_num > 14) {
-                small_max = 1;
-            }
-            if (big_num > 28) {
-                small_max = 0;
-            }
-
-            for (i = 0; i < big_num + 1; i++) {
-                local_small_max = small_max;
-
-                big_w = this.toFixed(big_p * i);
-
-                if (big_w > 100) {
-                    big_w = 100;
-
-                    local_small_max -= 2;
-                    if (local_small_max < 0) {
-                        local_small_max = 0;
-                    }
-                }
-                this.coords.big[i] = big_w;
-
-                small_p = (big_w - (big_p * (i - 1))) / (local_small_max + 1);
-
-                for (z = 1; z <= local_small_max; z++) {
-                    if (big_w === 0) {
-                        break;
-                    }
-
-                    small_w = this.toFixed(big_w - (small_p * z));
-
-                    html += '<span class="irs-grid-pol small" style="left: ' + small_w + '%"></span>';
-                }
-
-                html += '<span class="irs-grid-pol" style="left: ' + big_w + '%"></span>';
-
-                result = this.convertToValue(big_w);
-                if (o.values.length) {
-                    result = o.p_values[result];
-                } else {
-                    result = this._prettify(result);
-                }
-
-                html += '<span class="irs-grid-text js-grid-text-' + i + '" style="left: ' + big_w + '%">' + result + '</span>';
-            }
-            this.coords.big_num = Math.ceil(big_num + 1);
-
-
-
-            this.$cache.cont.addClass("irs-with-grid");
-            this.$cache.grid.html(html);
-            this.cacheGridLabels();
-        },
-
-        cacheGridLabels: function () {
-            var $label, i,
-                num = this.coords.big_num;
-
-            for (i = 0; i < num; i++) {
-                $label = this.$cache.grid.find(".js-grid-text-" + i);
-                this.$cache.grid_labels.push($label);
-            }
-
-            this.calcGridLabels();
-        },
-
-        calcGridLabels: function () {
-            var i, label, start = [], finish = [],
-                num = this.coords.big_num;
-
-            for (i = 0; i < num; i++) {
-                this.coords.big_w[i] = this.$cache.grid_labels[i].outerWidth(false);
-                this.coords.big_p[i] = this.toFixed(this.coords.big_w[i] / this.coords.w_rs * 100);
-                this.coords.big_x[i] = this.toFixed(this.coords.big_p[i] / 2);
-
-                start[i] = this.toFixed(this.coords.big[i] - this.coords.big_x[i]);
-                finish[i] = this.toFixed(start[i] + this.coords.big_p[i]);
-            }
-
-            if (this.options.force_edges) {
-                if (start[0] < -this.coords.grid_gap) {
-                    start[0] = -this.coords.grid_gap;
-                    finish[0] = this.toFixed(start[0] + this.coords.big_p[0]);
-
-                    this.coords.big_x[0] = this.coords.grid_gap;
-                }
-
-                if (finish[num - 1] > 100 + this.coords.grid_gap) {
-                    finish[num - 1] = 100 + this.coords.grid_gap;
-                    start[num - 1] = this.toFixed(finish[num - 1] - this.coords.big_p[num - 1]);
-
-                    this.coords.big_x[num - 1] = this.toFixed(this.coords.big_p[num - 1] - this.coords.grid_gap);
-                }
-            }
-
-            this.calcGridCollision(2, start, finish);
-            this.calcGridCollision(4, start, finish);
-
-            for (i = 0; i < num; i++) {
-                label = this.$cache.grid_labels[i][0];
-                label.style.marginLeft = -this.coords.big_x[i] + "%";
-            }
-        },
-
-        // Collisions Calc Beta
-        // TODO: Refactor then have plenty of time
-        calcGridCollision: function (step, start, finish) {
-            var i, next_i, label,
-                num = this.coords.big_num;
-
-            for (i = 0; i < num; i += step) {
-                next_i = i + (step / 2);
-                if (next_i >= num) {
-                    break;
-                }
-
-                label = this.$cache.grid_labels[next_i][0];
-
-                if (finish[i] <= start[next_i]) {
-                    label.style.visibility = "visible";
-                } else {
-                    label.style.visibility = "hidden";
-                }
-            }
-        },
-
-        calcGridMargin: function () {
-            if (!this.options.grid_margin) {
-                return;
-            }
-
-            this.coords.w_rs = this.$cache.rs.outerWidth(false);
-            if (!this.coords.w_rs) {
-                return;
-            }
-
-            if (this.options.type === "single") {
-                this.coords.w_handle = this.$cache.s_single.outerWidth(false);
-            } else {
-                this.coords.w_handle = this.$cache.s_from.outerWidth(false);
-            }
-            this.coords.p_handle = this.toFixed(this.coords.w_handle  / this.coords.w_rs * 100);
-            this.coords.grid_gap = this.toFixed((this.coords.p_handle / 2) - 0.1);
-
-            this.$cache.grid[0].style.width = this.toFixed(100 - this.coords.p_handle) + "%";
-            this.$cache.grid[0].style.left = this.coords.grid_gap + "%";
-        },
-
-
-
-        // =============================================================================================================
-        // Public methods
-
-        update: function (options) {
-            if (!this.input) {
-                return;
-            }
-
-            this.is_update = true;
-
-            this.options.from = this.result.from;
-            this.options.to = this.result.to;
-
-            this.options = $.extend(this.options, options);
-            this.validate();
-            this.updateResult(options);
-
-            this.toggleInput();
-            this.remove();
-            this.init(true);
-        },
-
-        reset: function () {
-            if (!this.input) {
-                return;
-            }
-
-            this.updateResult();
-            this.update();
-        },
-
-        destroy: function () {
-            if (!this.input) {
-                return;
-            }
-
-            this.toggleInput();
-            this.$cache.input.prop("readonly", false);
-            $.data(this.input, "ionRangeSlider", null);
-
-            this.remove();
-            this.input = null;
-            this.options = null;
-        }
-    };
-
-    $.fn.ionRangeSlider = function (options) {
-        return this.each(function() {
-            if (!$.data(this, "ionRangeSlider")) {
-                $.data(this, "ionRangeSlider", new IonRangeSlider(this, options, plugin_count++));
-            }
-        });
-    };
-
-
-
-    // =================================================================================================================
-    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-    // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
-
-    // MIT license
-
-    (function() {
-        var lastTime = 0;
-        var vendors = ['ms', 'moz', 'webkit', 'o'];
-        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-            window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
-                || window[vendors[x]+'CancelRequestAnimationFrame'];
-        }
-
-        if (!window.requestAnimationFrame)
-            window.requestAnimationFrame = function(callback, element) {
-                var currTime = new Date().getTime();
-                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-                var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                    timeToCall);
-                lastTime = currTime + timeToCall;
-                return id;
-            };
-
-        if (!window.cancelAnimationFrame)
-            window.cancelAnimationFrame = function(id) {
-                clearTimeout(id);
-            };
-    }());
-
-}));
-
-},{}],58:[function(require,module,exports){
+},{"_process":3,"path":2}],46:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.1.1
  * https://jquery.com/
@@ -21724,7 +18546,663 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}]},{},[6])
+},{}],47:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+
+module.exports = function () {
+    function _class() {
+        _classCallCheck(this, _class);
+    }
+
+    _createClass(_class, null, [{
+        key: 'get',
+        value: function get(url, data) {
+            var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+            var transformRequest = arguments.length <= 3 || arguments[3] === undefined ? function (data) {
+                return data;
+            } : arguments[3];
+
+            this._xhr && this._xhr.readyState != 4 && this._xhr.abort();
+            options = $.extend({}, {
+                url: url,
+                data: transformRequest(data)
+            }, options);
+            this._xhr = $.ajax(options);
+            return this._xhr;
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"jquery":46}],48:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+
+var instances = [];
+
+module.exports = function () {
+    _createClass(_class, null, [{
+        key: 'defaults',
+        get: function get() {
+            return {
+                activeClass: 'filter-form-item--active'
+            };
+        }
+    }]);
+
+    function _class(element, options) {
+        _classCallCheck(this, _class);
+
+        this.options = $.extend({}, this.constructor.defaults, options);
+        this.element = element;
+        this._id = this.element.getAttribute('data-filter-form-group');
+        this.button = this.element.querySelector('[data-filter-form-group-toggle]');
+        this.button.addEventListener('click', this._toggle.bind(this));
+        if (this.constructor.isActive(this._id)) {
+            this.show();
+        } else {
+            this.hide();
+        }
+    }
+
+    _createClass(_class, [{
+        key: '_toggle',
+        value: function _toggle(event) {
+            event.preventDefault();
+            if (this.constructor.isActive(this._id)) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        }
+    }, {
+        key: 'hide',
+        value: function hide() {
+            $(this.element).removeClass(this.options.activeClass);
+            this.constructor.deactivateId(this._id);
+        }
+    }, {
+        key: 'show',
+        value: function show() {
+            $(this.element).addClass(this.options.activeClass);
+            if (this._getLayoutType() == 'tabs') {
+                this.constructor._active = [];
+                $('.' + this.options.activeClass).not(this.element).removeClass(this.options.activeClass);
+            }
+            this.constructor.activateId(this._id);
+        }
+    }, {
+        key: '_getLayoutType',
+        value: function _getLayoutType() {
+            return window.getComputedStyle(this.element, ':before').getPropertyValue('content').replace(/"/g, '').replace(/'/g, '');
+        }
+    }, {
+        key: '_setButtonState',
+        value: function _setButtonState() {
+            if (!this.options.items.length) {
+                this.button.setAttribute('disabled', true);
+            } else {
+                this.button.removeAttribute('disabled');
+            }
+        }
+    }, {
+        key: '_arrayValuesAreEqual',
+        value: function _arrayValuesAreEqual(array, property) {
+            var firstValue = array[0];
+            for (var i = 1; i < array.length; i++) {
+                if (array[i][property] != firstValue[property]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }], [{
+        key: 'activateId',
+        value: function activateId(id) {
+            this._active = this._active || [];
+            var index = this._active.indexOf(id);
+            if (index === -1) {
+                this._active.push(id);
+            }
+        }
+    }, {
+        key: 'deactivateId',
+        value: function deactivateId(id) {
+            this._active = this._active || [];
+            var index = this._active.indexOf(id);
+            if (index !== -1) {
+                this._active.splice(index, 1);
+            }
+        }
+    }, {
+        key: 'isActive',
+        value: function isActive(id) {
+            this._active = this._active || [];
+            return this._active.indexOf(id) !== -1;
+        }
+    }, {
+        key: 'getOrCreate',
+        value: function getOrCreate(options) {
+            var item = instances.filter(function (instance) {
+                return instance.options.id === options.id && options.type == 'range';
+            }).pop();
+            if (!item) {
+                item = new this(options);
+                instances.push(item);
+            }
+            return item;
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"jquery":46}],49:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+var Utils = require('./utils');
+var FormGroup = require('./form-group');
+
+module.exports = function () {
+    _createClass(_class, null, [{
+        key: 'active',
+        set: function set(value) {
+            this._active = value;
+        },
+        get: function get() {
+            return this._active;
+        }
+    }, {
+        key: 'defaults',
+        get: function get() {
+            return {
+                onLoad: function onLoad() {},
+                onChange: function onChange(data) {}
+            };
+        }
+    }]);
+
+    function _class(element, options) {
+        _classCallCheck(this, _class);
+
+        this.options = $.extend({}, this.constructor.defaults, options);
+        this.element = element;
+        this._xhr = null;
+        this.element.addEventListener('change', this._onChange.bind(this));
+        [].concat(_toConsumableArray(element.querySelectorAll('[data-filter-form-group]'))).forEach(this._initGroup.bind(this));
+        if (this.constructor.active) {
+            this.activate();
+        }
+    }
+
+    _createClass(_class, [{
+        key: '_initGroup',
+        value: function _initGroup(element) {
+            new FormGroup(element);
+        }
+    }, {
+        key: '_onChange',
+        value: function _onChange(event) {
+            event.preventDefault();
+            this.options.onChange(this._serialize());
+        }
+    }, {
+        key: '_serialize',
+        value: function _serialize() {
+            var data = Utils.serializeForm(this.element);
+            data = Utils.serializeObjectArrays(data);
+            return data;
+        }
+    }, {
+        key: 'activate',
+        value: function activate() {
+            $(this.element).toggleClass('filter-form--active');
+            this.constructor.active = true;
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"./form-group":48,"./utils":55,"jquery":46}],50:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+var Form = require('./form');
+var Ajax = require('./ajax');
+var Url = require('./url');
+var Tag = require('./tag');
+var ToggleButton = require('./toggle-button');
+var Template = require('./template');
+
+window.Filter = function () {
+    _createClass(_class, null, [{
+        key: 'defaults',
+        get: function get() {
+            return {
+                url: '',
+                initialResponse: null,
+                ajaxOptions: {},
+                transformRequest: function transformRequest(data) {
+                    return data;
+                },
+                transformUrl: function transformUrl(data) {
+                    return data;
+                },
+                transformTemplateData: function transformTemplateData(data) {
+                    return data;
+                },
+                rendered: function rendered(element) {},
+                loaderClass: 'filter--loading'
+            };
+        }
+    }, {
+        key: 'Url',
+        get: function get() {
+            return Url;
+        }
+    }]);
+
+    function _class(element, options) {
+        _classCallCheck(this, _class);
+
+        this.element = element;
+        this.options = $.extend({}, this.constructor.defaults, options);
+        this._content = this._createContentElement();
+        this._renderInitialResponse();
+        this._url = new Url({ onChange: this.ajax.bind(this) });
+    }
+
+    _createClass(_class, [{
+        key: '_createContentElement',
+        value: function _createContentElement() {
+            var element = this.element.querySelector('[data-filter-rendered-template]');
+            if (!element) {
+                element = document.createElement('div');
+                element.setAttribute('data-filter-rendered-template', '');
+                this.element.appendChild(element);
+            }
+            return element;
+        }
+    }, {
+        key: '_renderInitialResponse',
+        value: function _renderInitialResponse() {
+            var response = this.options.initialResponse;
+            response && this._renderResponse(response);
+        }
+    }, {
+        key: 'ajax',
+        value: function ajax() {
+            var _this = this;
+
+            var url = this.options.url;
+            var data = decodeURI(location.search.replace('?', ''));
+            data = Url.parameterStringToObject(data);
+            var ajaxOptions = this.options.ajaxOptions;
+            var transformRequest = this.options.transformRequest;
+            $(this.element).addClass(this.options.loaderClass);
+            Ajax.get(url, data, ajaxOptions, transformRequest).then(this._renderResponse.bind(this)).catch(this._renderError.bind(this)).always(function () {
+                return $(_this.element).removeClass(_this.options.loaderClass);
+            });
+        }
+    }, {
+        key: '_renderResponse',
+        value: function _renderResponse(response) {
+            var _this2 = this;
+
+            this._renderTemplate(response);
+
+            this._initPlugin(Tag, '[data-filter-tag]', {
+                onRemove: this._removeFromUrl.bind(this)
+            });
+
+            var form = this._initPlugin(Form, '[data-filter-form]', {
+                url: this.options.url,
+                onLoad: function onLoad() {},
+                onChange: function onChange(data) {
+                    return _this2._updateUrl(data);
+                }
+            });
+
+            this._initPlugin(ToggleButton, '[data-filter-form-toggle]', {
+                onClick: function onClick() {
+                    form && form.activate();
+                }
+            });
+
+            this.options.rendered(this._content);
+        }
+    }, {
+        key: '_initPlugin',
+        value: function _initPlugin(Class, selector, options) {
+            var element = this._content.querySelector(selector);
+            return element ? new Class(element, options) : null;
+        }
+    }, {
+        key: '_renderError',
+        value: function _renderError(error) {
+            if (error.statusText != 'abort') {
+                this._renderTemplate(null, error);
+            }
+        }
+    }, {
+        key: '_renderTemplate',
+        value: function _renderTemplate(response) {
+            var error = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+            var element = this._content;
+            var templateElement = this.element.querySelector('[data-filter-template]');
+            var templateData = this.options.transformTemplateData({
+                response: response,
+                error: error,
+                urlParameters: this._getUrlData()
+            });
+            element.innerHTML = Template.elementToString(templateElement, templateData);
+        }
+    }, {
+        key: '_getUrlData',
+        value: function _getUrlData() {
+            var decoded = decodeURI(location.search.replace('?', ''));
+            return Url.parameterStringToObject(decoded);
+        }
+    }, {
+        key: '_removeFromUrl',
+        value: function _removeFromUrl(mainKey, value) {
+            var urlData = this._getUrlData();
+            var i = urlData[mainKey].indexOf(value);
+            if (i != -1) {
+                urlData[mainKey].splice(i, 1);
+            }
+
+            // Delete the mainkey if the value remaining is zero
+            if (urlData[mainKey].length == 0) {
+                delete urlData[mainKey];
+            }
+
+            this._updateUrl(urlData);
+        }
+    }, {
+        key: 'navigate',
+        value: function navigate(parameters) {
+            var data = $.extend({}, this._getUrlData(), parameters);
+            this._updateUrl(data);
+        }
+    }, {
+        key: '_updateUrl',
+        value: function _updateUrl(data) {
+            data = this.options.transformUrl(data);
+            this._url.update(data);
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"./ajax":47,"./form":49,"./tag":51,"./template":52,"./toggle-button":53,"./url":54,"jquery":46}],51:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+
+module.exports = function () {
+	_createClass(_class, null, [{
+		key: 'defaults',
+		get: function get() {
+			return {
+				onRemove: function onRemove(parameterName, value) {}
+			};
+		}
+	}]);
+
+	function _class(element, options) {
+		_classCallCheck(this, _class);
+
+		this.options = $.extend({}, this.constructor.defaults, options);
+		[].concat(_toConsumableArray(element.querySelectorAll('[data-filter-tag-remove]'))).forEach(this._initButton.bind(this));
+	}
+
+	_createClass(_class, [{
+		key: '_initButton',
+		value: function _initButton(element) {
+			element.addEventListener('click', this._onRemove.bind(this));
+		}
+	}, {
+		key: '_onRemove',
+		value: function _onRemove(event) {
+			event.preventDefault();
+			var data = $(event.currentTarget).data('filter-tag-remove');
+			var parameterName = data.key;
+			var value = data.value;
+			this.options.onRemove(parameterName, value);
+		}
+	}]);
+
+	return _class;
+}();
+
+},{"jquery":46}],52:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Handlebars = require('handlebars');
+
+module.exports = function () {
+    function _class() {
+        _classCallCheck(this, _class);
+    }
+
+    _createClass(_class, null, [{
+        key: 'elementToString',
+        value: function elementToString(element, data) {
+            var source = element.innerHTML;
+            var template = Handlebars.compile(source);
+            return template(data);
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"handlebars":33}],53:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+
+module.exports = function () {
+    _createClass(_class, null, [{
+        key: 'defaults',
+        get: function get() {
+            return {
+                onClick: function onClick(event) {}
+            };
+        }
+    }]);
+
+    function _class(element, options) {
+        _classCallCheck(this, _class);
+
+        this.options = $.extend({}, this.constructor.defaults, options);
+        element.addEventListener('click', this.options.onClick);
+    }
+
+    return _class;
+}();
+
+},{"jquery":46}],54:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+var Utils = require('./utils');
+
+module.exports = function () {
+    _createClass(_class, null, [{
+        key: 'defaults',
+        get: function get() {
+            return {
+                onChange: function onChange() {}
+            };
+        }
+    }]);
+
+    function _class(options) {
+        _classCallCheck(this, _class);
+
+        this.options = $.extend({}, this.constructor.defaults, options);
+        window.addEventListener('popstate', this.options.onChange);
+    }
+
+    _createClass(_class, [{
+        key: 'update',
+        value: function update(data) {
+            var string = Utils.serializeString(data);
+            window.history.pushState({}, '', '?' + string);
+            this.options.onChange();
+        }
+    }], [{
+        key: 'parameterHasValue',
+        value: function parameterHasValue(name, value) {
+            var urlValue = this.parameter(name);
+            var valueArray = urlValue ? urlValue.split(',') : [];
+            return valueArray.indexOf(value) !== -1;
+        }
+    }, {
+        key: 'parameter',
+        value: function parameter(name) {
+            var url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+            var results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+    }, {
+        key: 'parameterStringToObject',
+        value: function parameterStringToObject(parametersFromUrl) {
+            var output = {};
+            if (parametersFromUrl.trim() == '') {
+                return output;
+            }
+            var attributes = parametersFromUrl.replace(/(^\?)/, '').split('&');
+            for (var i = 0; i < attributes.length; i++) {
+                var items = attributes[i].split('=');
+                var key = items[0];
+                var value = items[1];
+                var valueSplit = decodeURIComponent(value).split(",");
+                var tempSub = [];
+                for (var counter = 0; counter < valueSplit.length; counter++) {
+                    tempSub[counter] = valueSplit[counter];
+                }
+                value = tempSub;
+                output[key] = value;
+            }
+            return output;
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"./utils":55,"jquery":46}],55:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var $ = require('jquery');
+
+module.exports = function () {
+    function _class() {
+        _classCallCheck(this, _class);
+    }
+
+    _createClass(_class, null, [{
+        key: 'serializeForm',
+        value: function serializeForm(el) {
+            var array = $(el).serializeArray();
+            var serialized = {};
+            for (var i = 0; i < array.length; i++) {
+                var item = array[i];
+                serialized[item.name] = serialized[item.name] || [];
+                serialized[item.name].push(item.value);
+            }
+            return serialized;
+        }
+    }, {
+        key: 'serializeObjectArrays',
+        value: function serializeObjectArrays(object) {
+            var clone = $.extend({}, object, {});
+            for (var name in clone) {
+                if (clone.hasOwnProperty(name)) {
+                    var valueArray = clone[name];
+                    clone[name] = valueArray.join(',');
+                }
+            }
+            return clone;
+        }
+    }, {
+        key: 'serializeString',
+        value: function serializeString(object) {
+            for (var key in object) {
+                var value = object[key];
+                if (Array.isArray(value)) {
+                    object[key] = value.join(',');
+                }
+            }
+            return $.param(object, true);
+        }
+    }, {
+        key: 'getUniqueId',
+        value: function getUniqueId() {
+            this._uniqueId = this._uniqueId === undefined ? 0 : this._uniqueId + 1;
+            return this._uniqueId;
+        }
+    }]);
+
+    return _class;
+}();
+
+},{"jquery":46}]},{},[50])
 
 
 //# sourceMappingURL=index.js.map

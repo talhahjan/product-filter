@@ -37,7 +37,6 @@
   }
 
   &:before {
-    @extend %loader;
     display: block;
     content: '';
     position: absolute;

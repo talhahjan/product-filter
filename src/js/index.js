@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const FilterForm = require('./form');
+const Form = require('./form');
 const Ajax = require('./ajax');
 const Url = require('./url');
 const Tag = require('./tag');
@@ -68,7 +68,7 @@ window.Filter = class {
             onRemove: this._removeFromUrl.bind(this)
         });
 
-        var form = this._initPlugin(FilterForm, '[data-filter-form]', {
+        var form = this._initPlugin(Form, '[data-filter-form]', {
             url: this.options.url,
             onLoad: () => {},
             onChange: (data) => this._updateUrl(data)

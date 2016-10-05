@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const FilterUtils = require('./utils');
+const Utils = require('./utils');
 
 module.exports = class {
 
@@ -15,7 +15,7 @@ module.exports = class {
     }
 
     update(data){
-        var string = FilterUtils.serializeString(data);
+        var string = Utils.serializeString(data);
         window.history.pushState({}, '', '?'+string);
         this.options.onChange();
     }

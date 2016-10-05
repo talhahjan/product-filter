@@ -1,5 +1,4 @@
 const $ = require('jquery');
-const Url = require('./url');
 
 module.exports = class {
     static get(url, data, options = {}, transformRequest = (data) => data){
