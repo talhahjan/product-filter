@@ -36,27 +36,83 @@ Use [Handlebars](http://handlebarsjs.com/) to render properties from json.
 
 See [an example of a template](index.html)  that renders html from [a json response](demo/full/index.json).
 
-#### HTML `data-attributes`
+### HTML `data-attributes`
 
-Add these `data-attributes` to the HTML:
+Add these [`data-attributes`](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_data_attributes) to the HTML.
 
-**`data-filter`**: The container that holds the template and rendered HTML
+#### `data-filter` **required**
 
-**`data-filter-template`**: The Handlebars template
+The container that wraps everything else
 
-**`data-filter-rendered-template`**: A container for the rendered html; will be inserted automatically if not provided
+**Example:** `<div data-filter>...</div>`
 
-**`data-filter-form-toggle`**: A button that toggles the form on small screens
+#### `data-filter-template` **required**
 
-**`data-filter-tag`**: Container for the tag-list
+Container for the [Handlebars](http://handlebarsjs.com) template
 
-**`data-filter-tag-remove='{"key": "color", "value": "red"}'`**: A button that clears a filter.
+**Example:** `<script data-filter-template type="text/x-handlebars-template"> ... </script>`
 
-**`data-filter-form`**: The form that will be submitted to the API
+#### `data-filter-rendered-template` **optional**
 
-**`data-filter-form-group`**: A group of toggleable form elements
+A container for the rendered html; will be inserted automatically if not provided.
 
-**`data-filter-form-group-toggle`**: A button for toggling a form group
+May contain html [rendered on the server-side](#server-side-rendering).
+
+**Example:** `<div data-filter-rendered-template><!-- Initial HTML --></div>`
+
+#### `data-filter-form-toggle` **optional**
+
+A button that toggles the `data-filter-form` element on small screens.
+
+**Example:** `<button data-filter-form-toggle>Show options</button>`
+
+#### `data-filter-tag` **optional**
+
+Container for the tag-list.
+
+**Example:** `<div data-filter-tag-list> ... </div>`
+
+#### `data-filter-tag-remove` **optional**
+
+A button that clears a filter.
+
+Must contain `key` and `value`.
+
+**Example:** `<button data-filter-tag-remove='{"key": "color", "value": "red"}' type="button">Clear red</button>`
+
+#### `data-filter-form`
+
+**required**
+
+A form with HTML form elements.
+
+Works just like regular html forms.
+
+When the user makes a change to an `<input />`, `<select></select>` or `<textarea></textarea>`, the form data is submitted to the api using an ajax request.
+
+**Example:**
+
+```html
+<form data-filter-form>
+{{#each response.facets}}
+    <h2>{{label}}</h2>
+    {{#each items}}
+        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="checkbox" {{#if checked}}checked{{/if}} />
+        <label for="{{../name}}-{{value}}">
+            {{label}}
+        </label>
+    {{/each}}
+{{/each}}
+</form>
+```
+
+#### `data-filter-form-group` **optional**
+
+A group of toggleable form elements
+
+#### `data-filter-form-group-toggle` **optional**
+
+A button for toggling a form group
 
 ### Initialize the JavaScript
 
