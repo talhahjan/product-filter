@@ -24,7 +24,7 @@ Works with "any" `json`-api; the plugin itself doesn't expect the response to be
 
 ### Write a HTML template
 
-Use [Handlebars](http://handlebarsjs.com/) to render properties from json.
+Use [Handlebars](http://handlebarsjs.com/) to render data from an api
 
 ```handlebars
 <div data-filter class="filter">
