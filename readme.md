@@ -7,7 +7,7 @@ A JavaScript plugin that connects to your API and renders a product filter with 
 **Use this plugin if** you have a server-side api that returns search facets and products.<br />
 Works with "any" `json`-api; the plugin itself doesn't expect the response to be in any particular format.
 
-**Don't use this plugin if** you want't to use client-side filtering only.
+**Don't use this plugin if** you want't to use client-side filtering without a server-side api.
 
 ## Getting started
 
@@ -69,6 +69,8 @@ Options to be passed to [jQuery Ajax](http://api.jquery.com/jquery.ajax/)
 An object with a response from the api.
 Use this to avoid having to call the api asynchronously after the JavaScript has initialized.
 Improves performance and SEO.
+
+Alternatively, use [server-side-rendering](#server-side-rendering).
 
 ### transformRequest
 

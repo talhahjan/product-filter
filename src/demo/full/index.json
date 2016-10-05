@@ -5,28 +5,28 @@
       "brand": "My Brand",
       "name": "My red product",
       "url": "#",
-      "imageUrl": "http://placehold.it/540x380"
+      "imageUrl": "//placehold.it/540x380"
     },
     {
       "regularPrice": 200,
       "brand": "My Brand",
       "name": "My green product",
       "url": "#",
-      "imageUrl": "http://placehold.it/540x380"
+      "imageUrl": "//placehold.it/540x380"
     },
     {
       "regularPrice": 300,
       "brand": "My Brand",
       "name": "My blue product",
       "url": "#",
-      "imageUrl": "http://placehold.it/540x380"
+      "imageUrl": "//placehold.it/540x380"
     },
     {
       "regularPrice": 400,
       "brand": "My Other Brand",
       "name": "My other blue product",
       "url": "#",
-      "imageUrl": "http://placehold.it/540x380"
+      "imageUrl": "//placehold.it/540x380"
     }
   ],
   "facets": [
