@@ -36,7 +36,7 @@ Use [Handlebars](http://handlebarsjs.com/) to render data from an api
 </div>
 ```
 
-See [an example of a template](index.html)  that renders html from [a json response](demo/full/index.json).
+See [an example of a template](index.html)  that renders html from [a json response](src/demo/full/index.json).
 
 See a [complete list of html data-attributes](docs/data-attributes.md) that should be included in the template.
 
@@ -117,7 +117,7 @@ Default: `filter--loading`
 
 Your api must return `json` with properties that can be read by the html template.
 
-See [an example](demo/full/index.json)
+See [an example](src/demo/full/index.json)
 
 ## Server-side rendering 
 
