@@ -66,21 +66,6 @@
           "count": 1
         }
       ]
-    },
-    {
-      "label": "Price",
-      "name": "price",
-      "items": [
-        {
-          "value": 100
-        },
-        {
-          "value": 200
-        },
-        {
-          "value": 300
-        }
-      ]
     }
   ]
 }
