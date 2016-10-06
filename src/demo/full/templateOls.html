@@ -128,10 +128,7 @@
             },
             transformTemplateData: transformTemplateData.fromJson.bind(transformTemplateData),
             rendered: function(element){
-                var div = document.createElement('div');
-                div.style.cssText = 'font-family: arial; color: salmon; padding: 40px 20px 20px 20px; text-align: center';
-                div.innerHTML = 'This demo displays data from<br /><a href="{jsonUrl}" style="color: inherit">a static json file</a><br />';
-                element.appendChild(div);
+                document.querySelector('[data-message]').style.display = 'block';
             }
         });
 
@@ -139,6 +136,16 @@
 
     }());
 </script>
+
+<style>
+    .message { font-family: arial; color: salmon; padding: 40px 20px 20px 20px; text-align: center }
+</style>
+<div class="message" style="display: none" data-message>
+    This demo displays data from
+    <a href="{jsonUrl}" style="color: inherit">a static json file</a>.
+    <br />
+    A server-side api must be used in order for the filtering to work.
+</div>
 
 <style>
     .external-form { margin: 30px 0 0 0; padding: 15px; border-top: solid 1px #888; font-family: Arial; }

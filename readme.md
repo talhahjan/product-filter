@@ -36,7 +36,7 @@ Use [Handlebars](http://handlebarsjs.com/) to render data from an api
 </div>
 ```
 
-See [an example of a template](index.html)  that renders html from [a json response](src/demo/full/index.json).
+See [an example of a template](src/demo/full/template.hbs)  that renders html from [a json response](src/demo/full/index.json).
 
 See a [complete list of html data-attributes](docs/data-attributes.md) that should be included in the template.
 
@@ -115,11 +115,27 @@ A css class that will be added to the container element whenever an ajax request
 
 Default: `filter--loading`
 
-### Json response
+## Methods
 
-Your api must return `json` with properties that can be read by the html template.
+### navigate(`Object`)
 
-See [an example](src/demo/full/index.json)
+Performs a new search and updates the url an ui.
+
+Useful for updating the url and ui manually, e.g. when clicking an external button.
+ 
+**Example 1:** request all red products
+
+```JavaScript
+var filter = new window.Filter(element, options);
+filter.navigate({color: 'red'});
+```
+
+**Example 2:** request all red and blue products that belong to *My Brand*
+
+```JavaScript
+var filter = new window.Filter(element, options);
+filter.navigate({color: ['red', 'blue'], brand: 'My Brand'})
+```
 
 ## Server-side rendering 
 

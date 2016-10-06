@@ -1,0 +1,81 @@
+<button data-filter-form-toggle class="filter-form-toggle" type="button">
+    Filter
+</button>
+<div data-filter-tag class="filter-tag">
+    <ul>
+        {{#each response.facets}}
+            {{#each items}}
+                {{#if checked}}
+                    <li class="filter-tag-item">
+                        {{label}}
+                        <button data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}' class="filter-tag-remove" type="button"></button>
+                    </li>
+                {{/if}}
+            {{/each}}
+        {{/each}}
+    </ul>
+</div>
+<form data-filter-form class="filter-form">
+    <div class="filter-form-counter">
+        {{response.products.length}} products
+    </div>
+    {{#each response.facets}}
+        <div class="filter-form-item" data-filter-form-group='{{name}}'>
+            <button class="filter-form-item-button" type="button" data-filter-form-group-toggle>
+                {{label}}
+            </button>
+            <div class="filter-form-item-options">
+                {{#each items}}
+                    <div class="filter-form-checkbox">
+                        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="checkbox" {{#if checked}}checked{{/if}} />
+                        <label for="{{../name}}-{{value}}">
+                            {{label}}
+                        </label>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    {{/each}}
+</form>
+<div class="filter-list">
+    {{#if error}}
+        <div class="filter-list-error">
+            <div class="filter-list-error-text">
+                {{error.status}} {{error.statusText}}
+            </div>
+        </div>
+    {{else}}
+        {{#if response.products.length}}
+            <ul class="filter-list-list">
+                {{#each response.products}}
+                    <li class="filter-list-item">
+                        <a href="{{url}}" class="filter-list-item-button">
+                            {{#if imageUrl}}
+                                <div class="filter-list-item-image" style="background-image: url('{{imageUrl}}')"></div>
+                            {{/if}}
+                            <div class="filter-list-item-text">
+                                {{#if brand}}
+                                    <div class="filter-list-item-brand">
+                                        {{brand}}
+                                    </div>
+                                {{/if}}
+                                <div class="filter-list-item-name">
+                                    {{name}}
+                                </div>
+                                <div class="filter-list-item-price">
+                                    $ {{regularPrice}}
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <div class="filter-list-empty">
+                <div class="filter-list-empty-text">
+                    No products found
+                </div>
+            </div>
+        {{/if}}
+    {{/if}}
+</div>

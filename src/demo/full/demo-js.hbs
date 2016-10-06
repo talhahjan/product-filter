@@ -1,0 +1,46 @@
+<script>
+    (function(){
+
+        var transformTemplateData = {
+
+            fromJson: function(data){
+                if(!data.error){
+                    data.response.facets = data.response.facets.map(this._transformFacet.bind(this));
+                }
+                return data;
+            },
+
+            _transformFacet: function(facet){
+                facet.items = facet.items.map(this._transformFacetItem.bind(this, facet));
+                return facet;
+            },
+
+            _transformFacetItem: function(facet, item){
+                item.checked = window.Filter.Url.parameterHasValue(facet.name, item.value);
+                return item;
+            }
+        };
+
+        var jsonFromServer = {{{json}}};
+        var element = document.querySelector('[data-filter]');
+        var filter = new window.Filter(element, {
+            url: '{{jsonUrl}}',
+            initialResponse: jsonFromServer,
+            transformRequest: function(data){
+                data.Categories = data.Categories || 'fallback';
+                return data;
+            },
+            transformUrl: function(data){
+                return data;
+            },
+            transformTemplateData: transformTemplateData.fromJson.bind(transformTemplateData),
+            rendered: function(element){
+                console.log('Element with rendered template:', element);
+                document.querySelector('[data-external-message]').style.display = 'block';
+            }
+        });
+
+        window.filter = filter;
+
+    }());
+</script>

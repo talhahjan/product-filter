@@ -1,64 +1,37 @@
 const fs = require('fs');
+const handlebars = require('gulp-compile-handlebars');
+const rename = require('gulp-rename');
+const sourceDirectory = 'src/demo/full';
+const destDirectory = '.';
 
-const sourceDirectory = 'src/demo';
-
-const distDirectory = '.';
-
-class Demo {
-    constructor(directoryName){
-        this.directoryName = directoryName;
-        this.path = sourceDirectory + '/' + this.directoryName;
-        this.fixtures = fs.readdirSync(this.path)
-            .filter(this.constructor._extIsJson)
-            .map(this._getContents.bind(this));
-        this.template = this._getContents('template.html');
-        this.items = this.fixtures.map(this._getItem.bind(this));
-    }
-
-    _getContents(fileName){
-        return {
-            name: fileName,
-            contents: fs.readFileSync(this.path + '/' + fileName, 'utf-8')
-        }
-    }
-
-    _getItem(fixture){
-        var json = fixture.contents;
-        json = this.constructor._removeNewlines(json);
-        json = this.constructor._removeDoubleWhitespace(json);
-        return {
-            name: fixture.name,
-            contents: this.template.contents
-                .replace('{json}', json)
-                .replace(new RegExp('{jsonUrl}', 'g'), this.path + '/' + fixture.name)
-        }
-    }
-
-    static _removeNewlines(string){
-        return string.replace(/(\r\n|\n|\r)/gm, '');
-    }
-
-    static _removeDoubleWhitespace(string){
-        return string.replace(/\s{2,}/g, ' ');
-    }
-
-    static _extIsJson(name){
-        return name.split('.').pop() == 'json';
-    }
+function removeNewlines(string){
+    return string.replace(/(\r\n|\n|\r)/gm, '');
 }
 
-module.exports = function(gulp, options){
+function removeDoubleWhitespace(string){
+    return string.replace(/\s{2,}/g, ' ');
+}
+
+module.exports = function(gulp){
     return function(){
-        fs.readdirSync(sourceDirectory)
-            .map(directoryName => new Demo(directoryName))
-            .forEach(demo => {
-                demo.items.forEach(item => {
-                    //var name = demo.directoryName + '-' + item.name.replace('.json', '.html');
-                    var name = 'index.html';
-                    fs.writeFileSync(distDirectory + '/' + name, item.contents);
-                });
-            });
+        var json = fs.readFileSync(`${sourceDirectory}/index.json`, 'utf-8');
+        json = removeNewlines(json);
+        json = removeDoubleWhitespace(json);
+        var template = fs.readFileSync(`${sourceDirectory}/template.hbs`, 'utf-8');
+        return gulp.src(`${sourceDirectory}/index.hbs`)
+            .pipe(handlebars(
+                {
+                    sourceDirectory: `${sourceDirectory}`,
+                    jsonUrl: `${sourceDirectory}/index.json`,
+                    json: json,
+                    template: template
+                },
+                {
+                    batch : [sourceDirectory]
+                }
+            ))
+            .pipe(rename('index.html'))
+            .pipe(gulp.dest(destDirectory));
     };
 };
-
 

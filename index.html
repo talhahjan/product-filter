@@ -2,96 +2,122 @@
 <html>
 <head>
     <link rel="stylesheet" href="dist/index.css">
-    <script src="dist/index.js"></script>
-</head>
-<body style="max-width: 1100px; margin: 0 auto;">
-<a href="https://github.com/Geta/product-filter"><img style="position: absolute; z-index: 1; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
-<div data-filter class="filter filter--enable-animations">
+    <link rel="stylesheet" href="src/demo/full/demo.css">
+    <script src="dist/index.js"></script></head>
+<body>
+<a href="https://github.com/Geta/product-filter">
+    <img
+        style="position: absolute; z-index: 1; top: 0; right: 0; border: 0;"
+        src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67"
+        alt="Fork me on GitHub"
+        data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png">
+</a><div class="external-message" style="display: none" data-external-message>
+    This demo displays data from
+    <a href="src/demo/full/index.json" style="color: inherit">a static json file</a>.
+    <br />
+    A server-side api must be used in order for the filtering to work.
+</div><div data-filter class="filter filter--enable-animations">
     <script data-filter-template type="text/x-handlebars-template">
         <button data-filter-form-toggle class="filter-form-toggle" type="button">
-            Filter
-        </button>
-        <div data-filter-tag class="filter-tag">
-            <ul>
-                {{#each response.facets}}
-                    {{#each items}}
-                        {{#if checked}}
-                            <li class="filter-tag-item">
-                                {{label}}
-                                <button data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}' class="filter-tag-remove" type="button"></button>
-                            </li>
-                        {{/if}}
-                    {{/each}}
+    Filter
+</button>
+<div data-filter-tag class="filter-tag">
+    <ul>
+        {{#each response.facets}}
+            {{#each items}}
+                {{#if checked}}
+                    <li class="filter-tag-item">
+                        {{label}}
+                        <button data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}' class="filter-tag-remove" type="button"></button>
+                    </li>
+                {{/if}}
+            {{/each}}
+        {{/each}}
+    </ul>
+</div>
+<form data-filter-form class="filter-form">
+    <div class="filter-form-counter">
+        {{response.products.length}} products
+    </div>
+    {{#each response.facets}}
+        <div class="filter-form-item" data-filter-form-group='{{name}}'>
+            <button class="filter-form-item-button" type="button" data-filter-form-group-toggle>
+                {{label}}
+            </button>
+            <div class="filter-form-item-options">
+                {{#each items}}
+                    <div class="filter-form-checkbox">
+                        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="checkbox" {{#if checked}}checked{{/if}} />
+                        <label for="{{../name}}-{{value}}">
+                            {{label}}
+                        </label>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    {{/each}}
+</form>
+<div class="filter-list">
+    {{#if error}}
+        <div class="filter-list-error">
+            <div class="filter-list-error-text">
+                {{error.status}} {{error.statusText}}
+            </div>
+        </div>
+    {{else}}
+        {{#if response.products.length}}
+            <ul class="filter-list-list">
+                {{#each response.products}}
+                    <li class="filter-list-item">
+                        <a href="{{url}}" class="filter-list-item-button">
+                            {{#if imageUrl}}
+                                <div class="filter-list-item-image" style="background-image: url('{{imageUrl}}')"></div>
+                            {{/if}}
+                            <div class="filter-list-item-text">
+                                {{#if brand}}
+                                    <div class="filter-list-item-brand">
+                                        {{brand}}
+                                    </div>
+                                {{/if}}
+                                <div class="filter-list-item-name">
+                                    {{name}}
+                                </div>
+                                <div class="filter-list-item-price">
+                                    $ {{regularPrice}}
+                                </div>
+                            </div>
+                        </a>
+                    </li>
                 {{/each}}
             </ul>
-        </div>
-        <form data-filter-form class="filter-form">
-            <div class="filter-form-counter">
-                {{response.products.length}} products
+        {{else}}
+            <div class="filter-list-empty">
+                <div class="filter-list-empty-text">
+                    No products found
+                </div>
             </div>
-            {{#each response.facets}}
-                <div class="filter-form-item" data-filter-form-group='{{name}}'>
-                    <button class="filter-form-item-button" type="button" data-filter-form-group-toggle>
-                        {{label}}
-                    </button>
-                    <div class="filter-form-item-options">
-                        {{#each items}}
-                            <div class="filter-form-checkbox">
-                                <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="checkbox" {{#if checked}}checked{{/if}} />
-                                <label for="{{../name}}-{{value}}">
-                                    {{label}}
-                                </label>
-                            </div>
-                        {{/each}}
-                    </div>
-                </div>
-            {{/each}}
-        </form>
-        <div class="filter-list">
-            {{#if error}}
-                <div class="filter-list-error">
-                    <div class="filter-list-error-text">
-                        {{error.status}} {{error.statusText}}
-                    </div>
-                </div>
-            {{else}}
-                {{#if response.products.length}}
-                    <ul class="filter-list-list">
-                        {{#each response.products}}
-                            <li class="filter-list-item">
-                                <a href="{{url}}" class="filter-list-item-button">
-                                    {{#if imageUrl}}
-                                        <div class="filter-list-item-image" style="background-image: url('{{imageUrl}}')"></div>
-                                    {{/if}}
-                                    <div class="filter-list-item-text">
-                                        {{#if brand}}
-                                            <div class="filter-list-item-brand">
-                                                {{brand}}
-                                            </div>
-                                        {{/if}}
-                                        <div class="filter-list-item-name">
-                                            {{name}}
-                                        </div>
-                                        <div class="filter-list-item-price">
-                                            $ {{regularPrice}}
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                        {{/each}}
-                    </ul>
-                {{else}}
-                    <div class="filter-list-empty">
-                        <div class="filter-list-empty-text">
-                            Fant ingen produkter
-                        </div>
-                    </div>
-                {{/if}}
-            {{/if}}
-        </div>
+        {{/if}}
+    {{/if}}
+</div>
     </script>
 </div>
+<form class="external-form" data-external-form>
+    <h5>Example of how to call the plugin from outside</h5>
+    <label for="external-form-1">Red</label>
+    <input id="external-form-1" type="radio" name="color" value="red" />
+    <label for="external-form-2">Green</label>
+    <input id="external-form-2" type="radio" name="color" value="green" />
+    <label for="external-form-3">Blue</label>
+    <input id="external-form-3" type="radio" name="color" value="blue" />
+</form>
 <script>
+    (function(){
+        var form = document.querySelector('[data-external-form]');
+        form.addEventListener('change', function(event){
+            filter.navigate({color: event.target.value});
+        });
+    }());
+</script><script>
     (function(){
 
         var transformTemplateData = {
@@ -114,7 +140,7 @@
             }
         };
 
-        var jsonFromServer = { "products": [ { "regularPrice": 100, "brand": "My Brand", "name": "My red product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 200, "brand": "My Brand", "name": "My green product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 300, "brand": "My Brand", "name": "My blue product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 400, "brand": "My Other Brand", "name": "My other blue product", "url": "#", "imageUrl": "//placehold.it/540x380" } ], "facets": [ { "label": "Brand", "name": "brand", "items": [ { "label": "My Brand", "value": "my-brand", "count": 3 }, { "label": "My Other Brand", "value": "my-other-brand", "count": 1 } ] }, { "label": "Color", "name": "color", "items": [ { "label": "Red", "value": "red", "count": 2 }, { "label": "Green", "value": "green", "count": 1 }, { "label": "Blue", "value": "blue", "count": 1 } ] }, { "label": "Price", "name": "price", "items": [ { "value": 100 }, { "value": 200 }, { "value": 300 } ] } ]};
+        var jsonFromServer = { "products": [ { "regularPrice": 100, "brand": "My Brand", "name": "My red product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 200, "brand": "My Brand", "name": "My green product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 300, "brand": "My Brand", "name": "My blue product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 400, "brand": "My Other Brand", "name": "My other blue product", "url": "#", "imageUrl": "//placehold.it/540x380" } ], "facets": [ { "label": "Brand", "name": "brand", "items": [ { "label": "My Brand", "value": "my-brand", "count": 3 }, { "label": "My Other Brand", "value": "my-other-brand", "count": 1 } ] }, { "label": "Color", "name": "color", "items": [ { "label": "Red", "value": "red", "count": 2 }, { "label": "Green", "value": "green", "count": 1 }, { "label": "Blue", "value": "blue", "count": 1 } ] } ]};
         var element = document.querySelector('[data-filter]');
         var filter = new window.Filter(element, {
             url: 'src/demo/full/index.json',
@@ -128,40 +154,13 @@
             },
             transformTemplateData: transformTemplateData.fromJson.bind(transformTemplateData),
             rendered: function(element){
-                var div = document.createElement('div');
-                div.style.cssText = 'font-family: arial; color: salmon; padding: 40px 20px 20px 20px; text-align: center';
-                div.innerHTML = 'This demo displays data from<br /><a href="src/demo/full/index.json" style="color: inherit">a static json file</a><br />';
-                element.appendChild(div);
+                console.log('Element with rendered template:', element);
+                document.querySelector('[data-external-message]').style.display = 'block';
             }
         });
 
         window.filter = filter;
 
     }());
-</script>
-
-<style>
-    .external-form { margin: 30px 0 0 0; padding: 15px; border-top: solid 1px #888; font-family: Arial; }
-    .external-form h5 { margin: 0 0 10px 0; }
-    .external-form input { margin-right: 20px; }
-</style>
-<form class="external-form" data-external-form>
-    <h5>Example of how to call the plugin from outside</h5>
-    <label for="external-form-1">Red</label>
-    <input id="external-form-1" type="radio" name="color" value="red" />
-    <label for="external-form-2">Green</label>
-    <input id="external-form-2" type="radio" name="color" value="green" />
-    <label for="external-form-3">Blue</label>
-    <input id="external-form-3" type="radio" name="color" value="blue" />
-</form>
-<script>
-    (function(){
-        var form = document.querySelector('[data-external-form]');
-        form.addEventListener('change', function(event){
-            filter.navigate({color: event.target.value});
-        });
-    }());
-</script>
-
-</body>
+</script></body>
 </html>
