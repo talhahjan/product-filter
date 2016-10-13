@@ -9,11 +9,11 @@ Works with "any" `json`-api; the plugin itself doesn't expect the response to be
 
 ---
 
-**[Demo](https://geta.github.io/product-filter/)**
+* **[Demo](https://geta.github.io/product-filter/)**
+* **[Server-side-rendering](docs/server-side-rendering.md)**
+* **[Contribution (for Geta)](docs/contribution.md)**
 
-**[Server-side-rendering](docs/server-side-rendering.md)**
-
-**[Contribution (for Geta)](docs/contribution.md)**
+---
 
 ## Getting started
 
