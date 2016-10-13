@@ -6,6 +6,6 @@
 
 **3.** Make changes
 
-**4.** Increase the version number in [package.json](package.json) using a [semantic version number](https://docs.npmjs.com/getting-started/semantic-versioning)
+**4.** Increase the version number in [package.json](../package.json) using a [semantic version number](https://docs.npmjs.com/getting-started/semantic-versioning)
 
 **5.** Update [the package](https://www.npmjs.com/package/geta-product-filter) using `npm publish` with valid credentials
