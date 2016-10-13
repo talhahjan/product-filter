@@ -2,12 +2,18 @@
 
 A JavaScript plugin that connects to your API and renders a product filter with custom HTML.
 
-**[Demo](https://geta.github.io/product-filter/)**
-
 **Use this plugin if** you have a server-side api that returns search facets and products.<br />
 Works with "any" `json`-api; the plugin itself doesn't expect the response to be in any particular format.
 
 **Don't use this plugin if** you want't to use client-side filtering without a server-side api.
+
+---
+
+**[Demo](https://geta.github.io/product-filter/)**
+
+**[Server-side-rendering](docs/server-side-rendering.md)**
+
+**[Contribution (for Geta)](docs/contribution.md)**
 
 ## Getting started
 
@@ -135,51 +141,4 @@ filter.navigate({color: 'red'});
 ```JavaScript
 var filter = new window.Filter(element, options);
 filter.navigate({color: ['red', 'blue'], brand: 'My Brand'})
-```
-
-## Server-side rendering 
-
-This package does not provide methods for server-side rendering, but all you need is a server-side compiler for Handlebars.
-
-That way you can use the same Handlebars template on both the client and the server (isomorphic rendering). 
-
-**Advantages:** Faster initial rendering and improved SEO.
-
-### .NET/Razor recipe
-
-**1.** Install [Handlebars.Net](https://github.com/rexm/Handlebars.Net)
-
-**2.** Create `template.hbs` with a Handlebars template
-
-```handlebars
-<div>{{response.count}} products</div>
-```
-
-**3.** Compile the template with some initial data
-
-```cs
-var handlebarsTemplate = File.ReadAllText("template.hbs");
-var initialResponse = new { count = 100 }; // Should be identical to the response provided by your api
-var renderedTemplateHtml = Handlebars.Compile(handlebarsTemplate)(new { response = initialResponse });
-```
-
-**4.** Render the template and the compiled output
-
-```html
-<div data-filter class="filter">
-    <script data-filter-template type="text/x-handlebars-template">
-        @Html.Raw(handlebarsTemplate)
-    </script>
-    <div data-filter-rendered-template>
-        @Html.Raw(renderedTemplateHtml)
-    </div>
-</div>
-```
-
-**5.** Initialize the JavaScript
-
-```JavaScript
-var element = document.querySelector('[data-filter]');
-var options = {};
-var filter = new window.Filter(element, options);
 ```

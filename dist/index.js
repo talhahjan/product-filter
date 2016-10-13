@@ -412,6 +412,249 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
+/*
+ * classList.js: Cross-browser full element.classList implementation.
+ * 2014-07-23
+ *
+ * By Eli Grey, http://eligrey.com
+ * Public Domain.
+ * NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+ */
+
+/*global self, document, DOMException */
+
+/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js*/
+
+/* Copied from MDN:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/classList
+ */
+
+if ("document" in window.self) {
+
+  // Full polyfill for browsers with no classList support
+  // Including IE < Edge missing SVGElement.classList
+  if (!("classList" in document.createElement("_"))
+    || document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
+
+  (function (view) {
+
+    "use strict";
+
+    if (!('Element' in view)) return;
+
+    var
+        classListProp = "classList"
+      , protoProp = "prototype"
+      , elemCtrProto = view.Element[protoProp]
+      , objCtr = Object
+      , strTrim = String[protoProp].trim || function () {
+        return this.replace(/^\s+|\s+$/g, "");
+      }
+      , arrIndexOf = Array[protoProp].indexOf || function (item) {
+        var
+            i = 0
+          , len = this.length
+        ;
+        for (; i < len; i++) {
+          if (i in this && this[i] === item) {
+            return i;
+          }
+        }
+        return -1;
+      }
+      // Vendors: please allow content code to instantiate DOMExceptions
+      , DOMEx = function (type, message) {
+        this.name = type;
+        this.code = DOMException[type];
+        this.message = message;
+      }
+      , checkTokenAndGetIndex = function (classList, token) {
+        if (token === "") {
+          throw new DOMEx(
+              "SYNTAX_ERR"
+            , "An invalid or illegal string was specified"
+          );
+        }
+        if (/\s/.test(token)) {
+          throw new DOMEx(
+              "INVALID_CHARACTER_ERR"
+            , "String contains an invalid character"
+          );
+        }
+        return arrIndexOf.call(classList, token);
+      }
+      , ClassList = function (elem) {
+        var
+            trimmedClasses = strTrim.call(elem.getAttribute("class") || "")
+          , classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
+          , i = 0
+          , len = classes.length
+        ;
+        for (; i < len; i++) {
+          this.push(classes[i]);
+        }
+        this._updateClassName = function () {
+          elem.setAttribute("class", this.toString());
+        };
+      }
+      , classListProto = ClassList[protoProp] = []
+      , classListGetter = function () {
+        return new ClassList(this);
+      }
+    ;
+    // Most DOMException implementations don't allow calling DOMException's toString()
+    // on non-DOMExceptions. Error's toString() is sufficient here.
+    DOMEx[protoProp] = Error[protoProp];
+    classListProto.item = function (i) {
+      return this[i] || null;
+    };
+    classListProto.contains = function (token) {
+      token += "";
+      return checkTokenAndGetIndex(this, token) !== -1;
+    };
+    classListProto.add = function () {
+      var
+          tokens = arguments
+        , i = 0
+        , l = tokens.length
+        , token
+        , updated = false
+      ;
+      do {
+        token = tokens[i] + "";
+        if (checkTokenAndGetIndex(this, token) === -1) {
+          this.push(token);
+          updated = true;
+        }
+      }
+      while (++i < l);
+
+      if (updated) {
+        this._updateClassName();
+      }
+    };
+    classListProto.remove = function () {
+      var
+          tokens = arguments
+        , i = 0
+        , l = tokens.length
+        , token
+        , updated = false
+        , index
+      ;
+      do {
+        token = tokens[i] + "";
+        index = checkTokenAndGetIndex(this, token);
+        while (index !== -1) {
+          this.splice(index, 1);
+          updated = true;
+          index = checkTokenAndGetIndex(this, token);
+        }
+      }
+      while (++i < l);
+
+      if (updated) {
+        this._updateClassName();
+      }
+    };
+    classListProto.toggle = function (token, force) {
+      token += "";
+
+      var
+          result = this.contains(token)
+        , method = result ?
+          force !== true && "remove"
+        :
+          force !== false && "add"
+      ;
+
+      if (method) {
+        this[method](token);
+      }
+
+      if (force === true || force === false) {
+        return force;
+      } else {
+        return !result;
+      }
+    };
+    classListProto.toString = function () {
+      return this.join(" ");
+    };
+
+    if (objCtr.defineProperty) {
+      var classListPropDesc = {
+          get: classListGetter
+        , enumerable: true
+        , configurable: true
+      };
+      try {
+        objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+      } catch (ex) { // IE 8 doesn't support enumerable:true
+        if (ex.number === -0x7FF5EC54) {
+          classListPropDesc.enumerable = false;
+          objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+        }
+      }
+    } else if (objCtr[protoProp].__defineGetter__) {
+      elemCtrProto.__defineGetter__(classListProp, classListGetter);
+    }
+
+    }(window.self));
+
+    } else {
+    // There is full or partial native classList support, so just check if we need
+    // to normalize the add/remove and toggle APIs.
+
+    (function () {
+      "use strict";
+
+      var testElement = document.createElement("_");
+
+      testElement.classList.add("c1", "c2");
+
+      // Polyfill for IE 10/11 and Firefox <26, where classList.add and
+      // classList.remove exist but support only one argument at a time.
+      if (!testElement.classList.contains("c2")) {
+        var createMethod = function(method) {
+          var original = DOMTokenList.prototype[method];
+
+          DOMTokenList.prototype[method] = function(token) {
+            var i, len = arguments.length;
+
+            for (i = 0; i < len; i++) {
+              token = arguments[i];
+              original.call(this, token);
+            }
+          };
+        };
+        createMethod('add');
+        createMethod('remove');
+      }
+
+      testElement.classList.toggle("c3", false);
+
+      // Polyfill for IE 10 and Firefox <24, where classList.toggle does not
+      // support the second argument.
+      if (testElement.classList.contains("c3")) {
+        var _toggle = DOMTokenList.prototype.toggle;
+
+        DOMTokenList.prototype.toggle = function(token, force) {
+          if (1 in arguments && !this.contains(token) === !force) {
+            return force;
+          } else {
+            return _toggle.call(this, token);
+          }
+        };
+
+      }
+
+      testElement = null;
+    }());
+  }
+}
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -478,7 +721,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars.runtime":5,"./handlebars/compiler/ast":7,"./handlebars/compiler/base":8,"./handlebars/compiler/compiler":10,"./handlebars/compiler/javascript-compiler":12,"./handlebars/compiler/visitor":15,"./handlebars/no-conflict":29}],5:[function(require,module,exports){
+},{"./handlebars.runtime":6,"./handlebars/compiler/ast":8,"./handlebars/compiler/base":9,"./handlebars/compiler/compiler":11,"./handlebars/compiler/javascript-compiler":13,"./handlebars/compiler/visitor":16,"./handlebars/no-conflict":30}],6:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -546,7 +789,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":6,"./handlebars/exception":19,"./handlebars/no-conflict":29,"./handlebars/runtime":30,"./handlebars/safe-string":31,"./handlebars/utils":32}],6:[function(require,module,exports){
+},{"./handlebars/base":7,"./handlebars/exception":20,"./handlebars/no-conflict":30,"./handlebars/runtime":31,"./handlebars/safe-string":32,"./handlebars/utils":33}],7:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -652,7 +895,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":17,"./exception":19,"./helpers":20,"./logger":28,"./utils":32}],7:[function(require,module,exports){
+},{"./decorators":18,"./exception":20,"./helpers":21,"./logger":29,"./utils":33}],8:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -685,7 +928,7 @@ exports['default'] = AST;
 module.exports = exports['default'];
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -735,7 +978,7 @@ function parse(input, options) {
 }
 
 
-},{"../utils":32,"./helpers":11,"./parser":13,"./whitespace-control":16}],9:[function(require,module,exports){
+},{"../utils":33,"./helpers":12,"./parser":14,"./whitespace-control":17}],10:[function(require,module,exports){
 /* global define */
 'use strict';
 
@@ -903,7 +1146,7 @@ exports['default'] = CodeGen;
 module.exports = exports['default'];
 
 
-},{"../utils":32,"source-map":34}],10:[function(require,module,exports){
+},{"../utils":33,"source-map":35}],11:[function(require,module,exports){
 /* eslint-disable new-cap */
 
 'use strict';
@@ -1477,7 +1720,7 @@ function transformLiteralToPath(sexpr) {
 }
 
 
-},{"../exception":19,"../utils":32,"./ast":7}],11:[function(require,module,exports){
+},{"../exception":20,"../utils":33,"./ast":8}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1709,7 +1952,7 @@ function preparePartialBlock(open, program, close, locInfo) {
 }
 
 
-},{"../exception":19}],12:[function(require,module,exports){
+},{"../exception":20}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2837,7 +3080,7 @@ exports['default'] = JavaScriptCompiler;
 module.exports = exports['default'];
 
 
-},{"../base":6,"../exception":19,"../utils":32,"./code-gen":9}],13:[function(require,module,exports){
+},{"../base":7,"../exception":20,"../utils":33,"./code-gen":10}],14:[function(require,module,exports){
 /* istanbul ignore next */
 /* Jison generated parser */
 "use strict";
@@ -3577,7 +3820,7 @@ var handlebars = (function () {
 exports['default'] = handlebars;
 
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /* eslint-disable new-cap */
 'use strict';
 
@@ -3765,7 +4008,7 @@ PrintVisitor.prototype.HashPair = function (pair) {
 /* eslint-enable new-cap */
 
 
-},{"./visitor":15}],15:[function(require,module,exports){
+},{"./visitor":16}],16:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3907,7 +4150,7 @@ exports['default'] = Visitor;
 module.exports = exports['default'];
 
 
-},{"../exception":19}],16:[function(require,module,exports){
+},{"../exception":20}],17:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4130,7 +4373,7 @@ exports['default'] = WhitespaceControl;
 module.exports = exports['default'];
 
 
-},{"./visitor":15}],17:[function(require,module,exports){
+},{"./visitor":16}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4148,7 +4391,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":18}],18:[function(require,module,exports){
+},{"./decorators/inline":19}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4179,7 +4422,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":32}],19:[function(require,module,exports){
+},{"../utils":33}],20:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4221,7 +4464,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4269,7 +4512,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":21,"./helpers/each":22,"./helpers/helper-missing":23,"./helpers/if":24,"./helpers/log":25,"./helpers/lookup":26,"./helpers/with":27}],21:[function(require,module,exports){
+},{"./helpers/block-helper-missing":22,"./helpers/each":23,"./helpers/helper-missing":24,"./helpers/if":25,"./helpers/log":26,"./helpers/lookup":27,"./helpers/with":28}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4310,7 +4553,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":32}],22:[function(require,module,exports){
+},{"../utils":33}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4406,7 +4649,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":19,"../utils":32}],23:[function(require,module,exports){
+},{"../exception":20,"../utils":33}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4433,7 +4676,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":19}],24:[function(require,module,exports){
+},{"../exception":20}],25:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4464,7 +4707,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":32}],25:[function(require,module,exports){
+},{"../utils":33}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4492,7 +4735,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4506,7 +4749,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4541,7 +4784,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":32}],28:[function(require,module,exports){
+},{"../utils":33}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4590,7 +4833,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":32}],29:[function(require,module,exports){
+},{"./utils":33}],30:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -4615,7 +4858,7 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -4909,7 +5152,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":6,"./exception":19,"./utils":32}],31:[function(require,module,exports){
+},{"./base":7,"./exception":20,"./utils":33}],32:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -4926,7 +5169,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -5052,7 +5295,7 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 // USAGE:
 // var handlebars = require('handlebars');
 /* eslint-disable no-var */
@@ -5079,7 +5322,7 @@ if (typeof require !== 'undefined' && require.extensions) {
   require.extensions['.hbs'] = extension;
 }
 
-},{"../dist/cjs/handlebars":4,"../dist/cjs/handlebars/compiler/printer":14,"fs":1}],34:[function(require,module,exports){
+},{"../dist/cjs/handlebars":5,"../dist/cjs/handlebars/compiler/printer":15,"fs":1}],35:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -5089,7 +5332,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":41,"./source-map/source-map-generator":42,"./source-map/source-node":43}],35:[function(require,module,exports){
+},{"./source-map/source-map-consumer":42,"./source-map/source-map-generator":43,"./source-map/source-node":44}],36:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -5198,7 +5441,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":44,"amdefine":45}],36:[function(require,module,exports){
+},{"./util":45,"amdefine":46}],37:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -5346,7 +5589,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":37,"amdefine":45}],37:[function(require,module,exports){
+},{"./base64":38,"amdefine":46}],38:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -5421,7 +5664,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":45}],38:[function(require,module,exports){
+},{"amdefine":46}],39:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -5540,7 +5783,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":45}],39:[function(require,module,exports){
+},{"amdefine":46}],40:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2014 Mozilla Foundation and contributors
@@ -5628,7 +5871,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":44,"amdefine":45}],40:[function(require,module,exports){
+},{"./util":45,"amdefine":46}],41:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -5750,7 +5993,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":45}],41:[function(require,module,exports){
+},{"amdefine":46}],42:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -6829,7 +7072,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":35,"./base64-vlq":36,"./binary-search":38,"./quick-sort":40,"./util":44,"amdefine":45}],42:[function(require,module,exports){
+},{"./array-set":36,"./base64-vlq":37,"./binary-search":39,"./quick-sort":41,"./util":45,"amdefine":46}],43:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7230,7 +7473,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":35,"./base64-vlq":36,"./mapping-list":39,"./util":44,"amdefine":45}],43:[function(require,module,exports){
+},{"./array-set":36,"./base64-vlq":37,"./mapping-list":40,"./util":45,"amdefine":46}],44:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -7646,7 +7889,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":42,"./util":44,"amdefine":45}],44:[function(require,module,exports){
+},{"./source-map-generator":43,"./util":45,"amdefine":46}],45:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -8018,7 +8261,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":45}],45:[function(require,module,exports){
+},{"amdefine":46}],46:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 1.0.0 Copyright (c) 2011-2015, The Dojo Foundation All Rights Reserved.
@@ -8324,7 +8567,7 @@ module.exports = amdefine;
 
 }).call(this,require('_process'),"/node_modules\\handlebars\\node_modules\\source-map\\node_modules\\amdefine\\amdefine.js")
 
-},{"_process":3,"path":2}],46:[function(require,module,exports){
+},{"_process":3,"path":2}],47:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.1.1
  * https://jquery.com/
@@ -18546,7 +18789,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18581,10 +18824,12 @@ module.exports = function () {
     return _class;
 }();
 
-},{"jquery":46}],48:[function(require,module,exports){
+},{"jquery":47}],49:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -18630,16 +18875,23 @@ module.exports = function () {
     }, {
         key: 'hide',
         value: function hide() {
-            $(this.element).removeClass(this.options.activeClass);
+            this.element.classList.remove(this.options.activeClass);
             this.constructor.deactivateId(this._id);
         }
     }, {
         key: 'show',
         value: function show() {
-            $(this.element).addClass(this.options.activeClass);
-            if (this._getLayoutType() == 'tabs') {
+            var _this = this;
+
+            this.element.classList.add(this.options.activeClass);
+            var activeElements = [].concat(_toConsumableArray(document.querySelectorAll('.' + this.options.activeClass))).filter(function (el) {
+                return el != _this.element;
+            });
+            if (this._getLayoutType() == 'tabs' && activeElements.length) {
                 this.constructor._active = [];
-                $('.' + this.options.activeClass).not(this.element).removeClass(this.options.activeClass);
+                activeElements.forEach(function (el) {
+                    return el.classList.remove(_this.options.activeClass);
+                });
             }
             this.constructor.activateId(this._id);
         }
@@ -18709,7 +18961,7 @@ module.exports = function () {
     return _class;
 }();
 
-},{"jquery":46}],49:[function(require,module,exports){
+},{"jquery":47}],50:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18775,7 +19027,7 @@ module.exports = function () {
     }, {
         key: 'activate',
         value: function activate() {
-            $(this.element).toggleClass('filter-form--active');
+            this.element.classList.toggle('filter-form--active');
             this.constructor.active = true;
         }
     }]);
@@ -18783,13 +19035,14 @@ module.exports = function () {
     return _class;
 }();
 
-},{"./form-group":48,"./utils":55,"jquery":46}],50:[function(require,module,exports){
+},{"./form-group":49,"./utils":56,"jquery":47}],51:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+require('classlist-polyfill');
 var $ = require('jquery');
 var Form = require('./form');
 var Ajax = require('./ajax');
@@ -18863,9 +19116,9 @@ window.Filter = function () {
             data = Url.parameterStringToObject(data);
             var ajaxOptions = this.options.ajaxOptions;
             var transformRequest = this.options.transformRequest;
-            $(this.element).addClass(this.options.loaderClass);
+            this.element.classList.add(this.options.loaderClass);
             Ajax.get(url, data, ajaxOptions, transformRequest).then(this._renderResponse.bind(this)).catch(this._renderError.bind(this)).always(function () {
-                return $(_this.element).removeClass(_this.options.loaderClass);
+                return _this.element.classList.remove(_this.options.loaderClass);
             });
         }
     }, {
@@ -18961,7 +19214,7 @@ window.Filter = function () {
     return _class;
 }();
 
-},{"./ajax":47,"./form":49,"./tag":51,"./template":52,"./toggle-button":53,"./url":54,"jquery":46}],51:[function(require,module,exports){
+},{"./ajax":48,"./form":50,"./tag":52,"./template":53,"./toggle-button":54,"./url":55,"classlist-polyfill":4,"jquery":47}],52:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -19008,7 +19261,7 @@ module.exports = function () {
 	return _class;
 }();
 
-},{"jquery":46}],52:[function(require,module,exports){
+},{"jquery":47}],53:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -19034,7 +19287,7 @@ module.exports = function () {
     return _class;
 }();
 
-},{"handlebars":33}],53:[function(require,module,exports){
+},{"handlebars":34}],54:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -19063,7 +19316,7 @@ module.exports = function () {
     return _class;
 }();
 
-},{"jquery":46}],54:[function(require,module,exports){
+},{"jquery":47}],55:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -19142,7 +19395,7 @@ module.exports = function () {
     return _class;
 }();
 
-},{"./utils":55,"jquery":46}],55:[function(require,module,exports){
+},{"./utils":56,"jquery":47}],56:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -19202,7 +19455,7 @@ module.exports = function () {
     return _class;
 }();
 
-},{"jquery":46}]},{},[50])
+},{"jquery":47}]},{},[51])
 
 
 //# sourceMappingURL=index.js.map

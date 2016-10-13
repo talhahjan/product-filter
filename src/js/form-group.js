@@ -35,17 +35,16 @@ module.exports = class {
     }
 
     hide(){
-        $(this.element).removeClass(this.options.activeClass);
+        this.element.classList.remove(this.options.activeClass);
         this.constructor.deactivateId(this._id);
     }
 
     show(){
-        $(this.element).addClass(this.options.activeClass);
-        if(this._getLayoutType() == 'tabs'){
+        this.element.classList.add(this.options.activeClass);
+        var activeElements = [...document.querySelectorAll('.' + this.options.activeClass)].filter(el => el != this.element);
+        if(this._getLayoutType() == 'tabs' && activeElements.length){
             this.constructor._active = [];
-            $('.' + this.options.activeClass)
-                .not(this.element)
-                .removeClass(this.options.activeClass);
+            activeElements.forEach(el => el.classList.remove(this.options.activeClass));
         }
         this.constructor.activateId(this._id);
     }

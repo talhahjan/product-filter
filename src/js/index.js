@@ -1,3 +1,4 @@
+require('classlist-polyfill');
 const $ = require('jquery');
 const Form = require('./form');
 const Ajax = require('./ajax');
@@ -54,11 +55,11 @@ window.Filter = class {
         data = Url.parameterStringToObject(data);
         var ajaxOptions = this.options.ajaxOptions;
         var transformRequest = this.options.transformRequest;
-        $(this.element).addClass(this.options.loaderClass);
+        this.element.classList.add(this.options.loaderClass);
         Ajax.get(url, data, ajaxOptions, transformRequest)
             .then(this._renderResponse.bind(this))
             .catch(this._renderError.bind(this))
-            .always(() => $(this.element).removeClass(this.options.loaderClass));
+            .always(() => this.element.classList.remove(this.options.loaderClass));
     }
 
     _renderResponse(response){

@@ -46,7 +46,7 @@ module.exports = class {
     }
 
     activate(){
-        $(this.element).toggleClass('filter-form--active');
+        this.element.classList.toggle('filter-form--active');
         this.constructor.active = true;
     }
 }
