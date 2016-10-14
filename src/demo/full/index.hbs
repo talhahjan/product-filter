@@ -10,8 +10,16 @@
     <script data-filter-template type="text/x-handlebars-template">
         {{{template}}}
     </script>
+    <div data-filter-rendered-template>
+        {{> template response=json}}
+    </div>
 </div>
 {{> external-form}}
-{{> demo-js}}
+<script src="dist/demo.js"></script>
+<script>
+    var element = document.querySelector('[data-filter]');
+    var initialResponse = {{{jsonString}}};
+    new Demo(element, initialResponse);
+</script>
 </body>
 </html>

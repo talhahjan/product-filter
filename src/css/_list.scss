@@ -9,7 +9,6 @@
 
   @include media-small-and-medium {
     float: left;
-    transition: transform .25s ease, opacity 1s ease 1s;
     transform: translateX(-$filter-form-width-small);
     width: calc(100% + #{$filter-form-width-small});
     padding: $filter-list-item-gutter;

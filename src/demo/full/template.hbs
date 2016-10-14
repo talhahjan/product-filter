@@ -3,12 +3,17 @@
 </button>
 <div data-filter-tag class="filter-tag">
     <ul>
-        {{#each response.facets}}
+        {{#each searchFacets}}
             {{#each items}}
                 {{#if checked}}
                     <li class="filter-tag-item">
                         {{label}}
-                        <button data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}' class="filter-tag-remove" type="button"></button>
+                        <button
+                                data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}'
+                                class="filter-tag-remove"
+                                type="button"
+                                {{#if ../removable}}{{else}}disabled{{/if}}>
+                        </button>
                     </li>
                 {{/if}}
             {{/each}}
@@ -17,9 +22,9 @@
 </div>
 <form data-filter-form class="filter-form">
     <div class="filter-form-counter">
-        {{response.products.length}} products
+        {{response.totalItems}} products
     </div>
-    {{#each response.facets}}
+    {{#each searchFacets}}
         <div class="filter-form-item" data-filter-form-group='{{name}}'>
             <button class="filter-form-item-button" type="button" data-filter-form-group-toggle>
                 {{label}}
@@ -27,7 +32,7 @@
             <div class="filter-form-item-options">
                 {{#each items}}
                     <div class="filter-form-checkbox">
-                        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="checkbox" {{#if checked}}checked{{/if}} />
+                        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="radio" {{#if checked}}checked{{/if}} />
                         <label for="{{../name}}-{{value}}">
                             {{label}}
                         </label>
@@ -45,25 +50,26 @@
             </div>
         </div>
     {{else}}
-        {{#if response.products.length}}
+        {{#if response.items.length}}
             <ul class="filter-list-list">
-                {{#each response.products}}
+                {{#each response.items}}
                     <li class="filter-list-item">
-                        <a href="{{url}}" class="filter-list-item-button">
-                            {{#if imageUrl}}
-                                <div class="filter-list-item-image" style="background-image: url('{{imageUrl}}')"></div>
+                        <a href="{{selfLink}}" class="filter-list-item-button">
+                            {{#if volumeInfo.imageLinks.smallThumbnail}}
+                                <div class="filter-list-item-image" style="background-image: url('{{volumeInfo.imageLinks.smallThumbnail}}')"></div>
                             {{/if}}
                             <div class="filter-list-item-text">
-                                {{#if brand}}
+                                {{#if volumeInfo.publisher}}
                                     <div class="filter-list-item-brand">
-                                        {{brand}}
+                                        {{volumeInfo.publisher}}
                                     </div>
                                 {{/if}}
                                 <div class="filter-list-item-name">
-                                    {{name}}
+                                    {{volumeInfo.title}}
                                 </div>
                                 <div class="filter-list-item-price">
-                                    $ {{regularPrice}}
+                                    {{saleInfo.listPrice.currencyCode}}
+                                    {{saleInfo.listPrice.amount}}
                                 </div>
                             </div>
                         </a>

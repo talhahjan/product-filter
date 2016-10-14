@@ -14,16 +14,17 @@ function removeDoubleWhitespace(string){
 
 module.exports = function(gulp){
     return function(){
-        var json = fs.readFileSync(`${sourceDirectory}/index.json`, 'utf-8');
-        json = removeNewlines(json);
-        json = removeDoubleWhitespace(json);
+        var jsonString = fs.readFileSync(`${sourceDirectory}/index.json`, 'utf-8');
+        jsonString = removeNewlines(jsonString);
+        jsonString = removeDoubleWhitespace(jsonString);
         var template = fs.readFileSync(`${sourceDirectory}/template.hbs`, 'utf-8');
         return gulp.src(`${sourceDirectory}/index.hbs`)
             .pipe(handlebars(
                 {
                     sourceDirectory: `${sourceDirectory}`,
                     jsonUrl: `${sourceDirectory}/index.json`,
-                    json: json,
+                    jsonString: jsonString,
+                    json: JSON.parse(jsonString),
                     template: template
                 },
                 {

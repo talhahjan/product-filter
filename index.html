@@ -12,10 +12,10 @@
         alt="Fork me on GitHub"
         data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png">
 </a><div class="external-message" style="display: none" data-external-message>
-    This demo displays data from
-    <a href="src/demo/full/index.json" style="color: inherit">a static json file</a>.
+    This demo displays data from the
+    <a href="https://developers.google.com/books/" target="_blank" style="color: inherit">Google Books API</a>.
     <br />
-    A server-side api must be used in order for the filtering to work.
+    The initial product-list is rendered server-side using data from <a href="src/demo/full/index.json" style="color: inherit">a static json file</a>.
 </div><div data-filter class="filter filter--enable-animations">
     <script data-filter-template type="text/x-handlebars-template">
         <button data-filter-form-toggle class="filter-form-toggle" type="button">
@@ -23,12 +23,17 @@
 </button>
 <div data-filter-tag class="filter-tag">
     <ul>
-        {{#each response.facets}}
+        {{#each searchFacets}}
             {{#each items}}
                 {{#if checked}}
                     <li class="filter-tag-item">
                         {{label}}
-                        <button data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}' class="filter-tag-remove" type="button"></button>
+                        <button
+                                data-filter-tag-remove='{"key": "{{../name}}", "value": "{{value}}"}'
+                                class="filter-tag-remove"
+                                type="button"
+                                {{#if ../removable}}{{else}}disabled{{/if}}>
+                        </button>
                     </li>
                 {{/if}}
             {{/each}}
@@ -37,9 +42,9 @@
 </div>
 <form data-filter-form class="filter-form">
     <div class="filter-form-counter">
-        {{response.products.length}} products
+        {{response.totalItems}} products
     </div>
-    {{#each response.facets}}
+    {{#each searchFacets}}
         <div class="filter-form-item" data-filter-form-group='{{name}}'>
             <button class="filter-form-item-button" type="button" data-filter-form-group-toggle>
                 {{label}}
@@ -47,7 +52,7 @@
             <div class="filter-form-item-options">
                 {{#each items}}
                     <div class="filter-form-checkbox">
-                        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="checkbox" {{#if checked}}checked{{/if}} />
+                        <input id="{{../name}}-{{value}}" name="{{../name}}" value="{{value}}" type="radio" {{#if checked}}checked{{/if}} />
                         <label for="{{../name}}-{{value}}">
                             {{label}}
                         </label>
@@ -65,25 +70,26 @@
             </div>
         </div>
     {{else}}
-        {{#if response.products.length}}
+        {{#if response.items.length}}
             <ul class="filter-list-list">
-                {{#each response.products}}
+                {{#each response.items}}
                     <li class="filter-list-item">
-                        <a href="{{url}}" class="filter-list-item-button">
-                            {{#if imageUrl}}
-                                <div class="filter-list-item-image" style="background-image: url('{{imageUrl}}')"></div>
+                        <a href="{{selfLink}}" class="filter-list-item-button">
+                            {{#if volumeInfo.imageLinks.smallThumbnail}}
+                                <div class="filter-list-item-image" style="background-image: url('{{volumeInfo.imageLinks.smallThumbnail}}')"></div>
                             {{/if}}
                             <div class="filter-list-item-text">
-                                {{#if brand}}
+                                {{#if volumeInfo.publisher}}
                                     <div class="filter-list-item-brand">
-                                        {{brand}}
+                                        {{volumeInfo.publisher}}
                                     </div>
                                 {{/if}}
                                 <div class="filter-list-item-name">
-                                    {{name}}
+                                    {{volumeInfo.title}}
                                 </div>
                                 <div class="filter-list-item-price">
-                                    $ {{regularPrice}}
+                                    {{saleInfo.listPrice.currencyCode}}
+                                    {{saleInfo.listPrice.amount}}
                                 </div>
                             </div>
                         </a>
@@ -100,67 +106,246 @@
     {{/if}}
 </div>
     </script>
+    <div data-filter-rendered-template>
+        <button data-filter-form-toggle class="filter-form-toggle" type="button">
+            Filter
+        </button>
+        <div data-filter-tag class="filter-tag">
+            <ul>
+            </ul>
+        </div>
+        <form data-filter-form class="filter-form">
+            <div class="filter-form-counter">
+                53 products
+            </div>
+        </form>
+        <div class="filter-list">
+                    <ul class="filter-list-list">
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/AHBPmBruZo8C" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;AHBPmBruZo8C&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                John Wiley and Sons
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Beginning JavaScript and CSS Development with JQuery
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/-6uPQQAACAAJ" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;-6uPQQAACAAJ&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                Packt Pub Limited
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Jquery 1.3 with PHP
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/HbSFmymjrGIC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;HbSFmymjrGIC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                John Wiley &amp; Sons
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Professional JQuery
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/EoPoCR_TWpoC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;EoPoCR_TWpoC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                &quot;O&#x27;Reilly Media, Inc.&quot;
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            JQuery Mobile
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/IFq093JnK9QC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;IFq093JnK9QC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                &quot;O&#x27;Reilly Media, Inc.&quot;
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Supercharged JavaScript Graphics
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/Wfan6L9RGgYC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;Wfan6L9RGgYC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                No Starch Press
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            The Modern Web
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/MigLW23xdzAC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;MigLW23xdzAC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                &quot;O&#x27;Reilly Media, Inc.&quot;
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            JavaScript &amp; JQuery
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/bWVppN7mdA0C" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;bWVppN7mdA0C&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                Dave Crane
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Ajax in Action
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/9U5I_tskq9MC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;9U5I_tskq9MC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                No Starch Press
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Eloquent JavaScript
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            NOK
+                                            176.82
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/iILJ_KIyxkgC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;iILJ_KIyxkgC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                John Wiley &amp; Sons
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            JavaScript and AJAX For Dummies
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/UooAblGoGN8C" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;UooAblGoGN8C&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                &quot;O&#x27;Reilly Media, Inc.&quot;
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Designing with Javascript
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="filter-list-item">
+                                <a href="https://www.googleapis.com/books/v1/volumes/WfAya4HytnAC" class="filter-list-item-button">
+                                        <div class="filter-list-item-image" style="background-image: url('http://books.google.com/books/content?id&#x3D;WfAya4HytnAC&amp;printsec&#x3D;frontcover&amp;img&#x3D;1&amp;zoom&#x3D;5&amp;edge&#x3D;curl&amp;source&#x3D;gbs_api')"></div>
+                                    <div class="filter-list-item-text">
+                                            <div class="filter-list-item-brand">
+                                                &quot;O&#x27;Reilly Media, Inc.&quot;
+                                            </div>
+                                        <div class="filter-list-item-name">
+                                            Head First HTML5 Programming
+                                        </div>
+                                        <div class="filter-list-item-price">
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                    </ul>
+        </div>    </div>
 </div>
 <form class="external-form" data-external-form>
     <h5>Example of how to call the plugin from outside</h5>
-    <label for="external-form-1">Red</label>
-    <input id="external-form-1" type="radio" name="color" value="red" />
-    <label for="external-form-2">Green</label>
-    <input id="external-form-2" type="radio" name="color" value="green" />
-    <label for="external-form-3">Blue</label>
-    <input id="external-form-3" type="radio" name="color" value="blue" />
+    <button name="subject" value="jQuery">See all jQuery books</button>
 </form>
 <script>
     (function(){
         var form = document.querySelector('[data-external-form]');
-        form.addEventListener('change', function(event){
-            filter.navigate({color: event.target.value});
+        form.addEventListener('submit', function(event){
+            event.preventDefault();
+            var value = document.activeElement.value;
+            filter.navigate({subject: value, inpublisher: null});
         });
     }());
-</script><script>
-    (function(){
-
-        var transformTemplateData = {
-
-            fromJson: function(data){
-                if(!data.error){
-                    data.response.facets = data.response.facets.map(this._transformFacet.bind(this));
-                }
-                return data;
-            },
-
-            _transformFacet: function(facet){
-                facet.items = facet.items.map(this._transformFacetItem.bind(this, facet));
-                return facet;
-            },
-
-            _transformFacetItem: function(facet, item){
-                item.checked = window.Filter.Url.parameterHasValue(facet.name, item.value);
-                return item;
-            }
-        };
-
-        var jsonFromServer = { "products": [ { "regularPrice": 100, "brand": "My Brand", "name": "My red product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 200, "brand": "My Brand", "name": "My green product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 300, "brand": "My Brand", "name": "My blue product", "url": "#", "imageUrl": "//placehold.it/540x380" }, { "regularPrice": 400, "brand": "My Other Brand", "name": "My other blue product", "url": "#", "imageUrl": "//placehold.it/540x380" } ], "facets": [ { "label": "Brand", "name": "brand", "items": [ { "label": "My Brand", "value": "my-brand", "count": 3 }, { "label": "My Other Brand", "value": "my-other-brand", "count": 1 } ] }, { "label": "Color", "name": "color", "items": [ { "label": "Red", "value": "red", "count": 2 }, { "label": "Green", "value": "green", "count": 1 }, { "label": "Blue", "value": "blue", "count": 1 } ] } ]};
-        var element = document.querySelector('[data-filter]');
-        var filter = new window.Filter(element, {
-            url: 'src/demo/full/index.json',
-            initialResponse: jsonFromServer,
-            transformRequest: function(data){
-                data.Categories = data.Categories || 'fallback';
-                return data;
-            },
-            transformUrl: function(data){
-                return data;
-            },
-            transformTemplateData: transformTemplateData.fromJson.bind(transformTemplateData),
-            rendered: function(element){
-                console.log('Element with rendered template:', element);
-                document.querySelector('[data-external-message]').style.display = 'block';
-            }
-        });
-
-        window.filter = filter;
-
-    }());
-</script></body>
+</script><script src="dist/demo.js"></script>
+<script>
+    var element = document.querySelector('[data-filter]');
+    var initialResponse = { "kind": "books#volumes", "totalItems": 53, "items": [ { "kind": "books#volume", "id": "AHBPmBruZo8C", "etag": "btnSVBCw0Nw", "selfLink": "https://www.googleapis.com/books/v1/volumes/AHBPmBruZo8C", "volumeInfo": { "title": "Beginning JavaScript and CSS Development with JQuery", "authors": [ "Richard York" ], "publisher": "John Wiley and Sons", "publishedDate": "2009-05-05", "description": "The jQuery JavaScript framework is a rising star in the world of web development. JavaScript frameworks in general have grown to become immensely popular in the past few years in parallel with the ever-increasing presence of JavaScript-driven, so-called Web 2.0 websites that make heavy use of technologies like AJAX and JavaScript in general for slick graphical enhancements that would be impossible or much more cumbersome to incorporate without JavaScript. jQuery’s mission as a JavaScript library is simple — it strives to...", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9780470227794" }, { "type": "ISBN_10", "identifier": "0470227796" } ], "readingModes": { "text": false, "image": false }, "pageCount": 529, "printType": "BOOK", "categories": [ "Computers" ], "averageRating": 4.0, "ratingsCount": 2, "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "preview-1.0.0", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=AHBPmBruZo8C&printsec=frontcover&img=1&zoom=5&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=AHBPmBruZo8C&printsec=frontcover&img=1&zoom=1&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=AHBPmBruZo8C&dq=subject:JavaScript&hl=&cd=1&source=gbs_api", "infoLink": "http://books.google.no/books?id=AHBPmBruZo8C&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Beginning_JavaScript_and_CSS_Development.html?hl=&id=AHBPmBruZo8C" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "NO_PAGES", "embeddable": false, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": false }, "webReaderLink": "http://books.google.no/books/reader?id=AHBPmBruZo8C&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "NONE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "-6uPQQAACAAJ", "etag": "6XnWjViX7qY", "selfLink": "https://www.googleapis.com/books/v1/volumes/-6uPQQAACAAJ", "volumeInfo": { "title": "Jquery 1.3 with PHP", "authors": [ "Kae Verens" ], "publisher": "Packt Pub Limited", "publishedDate": "2009-10", "description": "This book takes a practical approach to integrating PHP and jQuery, showing examples of every point discussed. All examples are written such that you should be able to copy out the code into your own projects and see immediate results, no matter what your experience with JavaScript. You will find projects developed within a chapter, building them up step-by-step, describing the process and thought that goes into it. Minimal requirements are needed on the server-side, so the examples should work with any setup. This book is for PHP application developers who want to improve their user interfaces through jQuery's capabilities and responsiveness. Whether you are familiar with jQuery or have only dabbled a little with JavaScript, this book will provide you with numerous practical examples of how to improve your application.", "industryIdentifiers": [ { "type": "ISBN_10", "identifier": "1847196985" }, { "type": "ISBN_13", "identifier": "9781847196989" } ], "readingModes": { "text": false, "image": false }, "pageCount": 248, "printType": "BOOK", "categories": [ "Computers" ], "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "preview-1.0.0", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=-6uPQQAACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=-6uPQQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=-6uPQQAACAAJ&dq=subject:JavaScript&hl=&cd=2&source=gbs_api", "infoLink": "http://books.google.no/books?id=-6uPQQAACAAJ&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Jquery_1_3_with_PHP.html?hl=&id=-6uPQQAACAAJ" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "NO_PAGES", "embeddable": false, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": false }, "webReaderLink": "http://books.google.no/books/reader?id=-6uPQQAACAAJ&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "NONE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "HbSFmymjrGIC", "etag": "w20Z7PCQgWw", "selfLink": "https://www.googleapis.com/books/v1/volumes/HbSFmymjrGIC", "volumeInfo": { "title": "Professional JQuery", "authors": [ "Cesar Otero", "Rob Larsen" ], "publisher": "John Wiley & Sons", "publishedDate": "2012-05-01", "description": "Looks at the concepts, techniques, and practices of jQuery, with information on such topics as working with the DOM, using Ajax, applying widgets, and creating application interfaces.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781118026687" }, { "type": "ISBN_10", "identifier": "1118026683" } ], "readingModes": { "text": false, "image": true }, "pageCount": 315, "printType": "BOOK", "categories": [ "Computers" ], "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "preview-1.0.0", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=HbSFmymjrGIC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=HbSFmymjrGIC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=HbSFmymjrGIC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=3&source=gbs_api", "infoLink": "http://books.google.no/books?id=HbSFmymjrGIC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Professional_JQuery.html?hl=&id=HbSFmymjrGIC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": false }, "webReaderLink": "http://books.google.no/books/reader?id=HbSFmymjrGIC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "EoPoCR_TWpoC", "etag": "kKh1V610WCo", "selfLink": "https://www.googleapis.com/books/v1/volumes/EoPoCR_TWpoC", "volumeInfo": { "title": "JQuery Mobile", "authors": [ "Jon Reid" ], "publisher": "\"O'Reilly Media, Inc.\"", "publishedDate": "2011-06-20", "description": "The future belongs to mobile web apps that function on a broad range of smart-phones and tablets. Get started with jQuery Mobile, the touch-optimized framework for creating apps that look and behave consistently across many devices. This book assumes that you are already familiar with the jQuery JavaScript library, HTML markup, Cascading Style Sheets, and mobile web browsers. The book provides HTML5, CSS3, and JavaScript code examples, screen shots, and step-by-step guidance to help you build a complete working app.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781449306687" }, { "type": "ISBN_10", "identifier": "1449306683" } ], "readingModes": { "text": false, "image": true }, "pageCount": 111, "printType": "BOOK", "categories": [ "Computers" ], "averageRating": 4.0, "ratingsCount": 1, "maturityRating": "NOT_MATURE", "allowAnonLogging": true, "contentVersion": "1.2.0.0.preview.1", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=EoPoCR_TWpoC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=EoPoCR_TWpoC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=EoPoCR_TWpoC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=4&source=gbs_api", "infoLink": "http://books.google.no/books?id=EoPoCR_TWpoC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/JQuery_Mobile.html?hl=&id=EoPoCR_TWpoC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=EoPoCR_TWpoC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "IFq093JnK9QC", "etag": "WC3a9zI2GYI", "selfLink": "https://www.googleapis.com/books/v1/volumes/IFq093JnK9QC", "volumeInfo": { "title": "Supercharged JavaScript Graphics", "subtitle": "With HTML5 Canvas, JQuery, and More", "authors": [ "Raffaele Cecco" ], "publisher": "\"O'Reilly Media, Inc.\"", "publishedDate": "2011-07-18", "description": "Provides information on using JavaScript, jQuery, and HTML5 Canvas to create Web applications for desktop and mobile devices.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781449393632" }, { "type": "ISBN_10", "identifier": "1449393632" } ], "readingModes": { "text": false, "image": true }, "pageCount": 260, "printType": "BOOK", "categories": [ "Computers" ], "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "0.1.0.0.preview.1", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=IFq093JnK9QC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=IFq093JnK9QC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=IFq093JnK9QC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=5&source=gbs_api", "infoLink": "http://books.google.no/books?id=IFq093JnK9QC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Supercharged_JavaScript_Graphics.html?hl=&id=IFq093JnK9QC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=IFq093JnK9QC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "Wfan6L9RGgYC", "etag": "/fXUF4cDrHo", "selfLink": "https://www.googleapis.com/books/v1/volumes/Wfan6L9RGgYC", "volumeInfo": { "title": "The Modern Web", "subtitle": "Multi-device Web Development with HTML5, CSS3, and JavaScript", "authors": [ "Peter Gasston" ], "publisher": "No Starch Press", "publishedDate": "2013", "description": "Provides information on Web development for multiple devices, covering such topics as structure and semantics, device APIs, multimedia, and Web apps.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781593274870" }, { "type": "ISBN_10", "identifier": "1593274874" } ], "readingModes": { "text": true, "image": true }, "pageCount": 264, "printType": "BOOK", "categories": [ "Computers" ], "averageRating": 4.5, "ratingsCount": 3, "maturityRating": "NOT_MATURE", "allowAnonLogging": true, "contentVersion": "1.2.2.0.preview.3", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=Wfan6L9RGgYC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=Wfan6L9RGgYC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=Wfan6L9RGgYC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=6&source=gbs_api", "infoLink": "http://books.google.no/books?id=Wfan6L9RGgYC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/The_Modern_Web.html?hl=&id=Wfan6L9RGgYC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": true }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=Wfan6L9RGgYC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "MigLW23xdzAC", "etag": "JEMp0prk+VM", "selfLink": "https://www.googleapis.com/books/v1/volumes/MigLW23xdzAC", "volumeInfo": { "title": "JavaScript & JQuery", "subtitle": "The Missing Manual", "authors": [ "David McFarland" ], "publisher": "\"O'Reilly Media, Inc.\"", "publishedDate": "2011-10-21", "description": "Provides information on creating Web applications with JavaScript and the jQuery library of code.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781449399023" }, { "type": "ISBN_10", "identifier": "1449399029" } ], "readingModes": { "text": false, "image": true }, "pageCount": 518, "printType": "BOOK", "categories": [ "Computers" ], "averageRating": 3.5, "ratingsCount": 2, "maturityRating": "NOT_MATURE", "allowAnonLogging": true, "contentVersion": "1.4.0.0.preview.1", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=MigLW23xdzAC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=MigLW23xdzAC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=MigLW23xdzAC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=7&source=gbs_api", "infoLink": "http://books.google.no/books?id=MigLW23xdzAC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/JavaScript_JQuery.html?hl=&id=MigLW23xdzAC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=MigLW23xdzAC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "bWVppN7mdA0C", "etag": "pSAmMfA3E20", "selfLink": "https://www.googleapis.com/books/v1/volumes/bWVppN7mdA0C", "volumeInfo": { "title": "Ajax in Action", "authors": [ "Dave Crane", "Eric Pascarello", "Darren James" ], "publisher": "Dave Crane", "publishedDate": "2006", "description": "Provides information on using Ajax in building Web applications.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781932394610" }, { "type": "ISBN_10", "identifier": "1932394613" } ], "readingModes": { "text": false, "image": true }, "pageCount": 650, "printType": "BOOK", "categories": [ "Computers" ], "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "preview-1.0.0", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=bWVppN7mdA0C&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=bWVppN7mdA0C&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=bWVppN7mdA0C&printsec=frontcover&dq=subject:JavaScript&hl=&cd=8&source=gbs_api", "infoLink": "http://books.google.no/books?id=bWVppN7mdA0C&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Ajax_in_Action.html?hl=&id=bWVppN7mdA0C" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": false }, "webReaderLink": "http://books.google.no/books/reader?id=bWVppN7mdA0C&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "9U5I_tskq9MC", "etag": "Y/dUrWzW/98", "selfLink": "https://www.googleapis.com/books/v1/volumes/9U5I_tskq9MC", "volumeInfo": { "title": "Eloquent JavaScript", "subtitle": "A Modern Introduction to Programming", "authors": [ "Marijn Haverbeke" ], "publisher": "No Starch Press", "publishedDate": "2011", "description": "Provides information and examples on writing JavaScript code, covering such topics as syntax, control, data, regular expressions, and scripting.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781593272821" }, { "type": "ISBN_10", "identifier": "1593272820" } ], "readingModes": { "text": true, "image": true }, "pageCount": 224, "printType": "BOOK", "categories": [ "COMPUTERS" ], "averageRating": 3.5, "ratingsCount": 2, "maturityRating": "NOT_MATURE", "allowAnonLogging": true, "contentVersion": "0.1.1.0.preview.3", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=9U5I_tskq9MC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=9U5I_tskq9MC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=9U5I_tskq9MC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=9&source=gbs_api", "infoLink": "https://play.google.com/store/books/details?id=9U5I_tskq9MC&source=gbs_api", "canonicalVolumeLink": "https://market.android.com/details?id=book-9U5I_tskq9MC" }, "saleInfo": { "country": "NO", "saleability": "FOR_SALE", "isEbook": true, "listPrice": { "amount": 176.82, "currencyCode": "NOK" }, "retailPrice": { "amount": 154.72, "currencyCode": "NOK" }, "buyLink": "https://play.google.com/store/books/details?id=9U5I_tskq9MC&rdid=book-9U5I_tskq9MC&rdot=1&source=gbs_api", "offers": [ { "finskyOfferType": 1, "listPrice": { "amountInMicros": 1.7682E8, "currencyCode": "NOK" }, "retailPrice": { "amountInMicros": 1.5472E8, "currencyCode": "NOK" } } ] }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": true }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=9U5I_tskq9MC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "iILJ_KIyxkgC", "etag": "+mcl+48TDwA", "selfLink": "https://www.googleapis.com/books/v1/volumes/iILJ_KIyxkgC", "volumeInfo": { "title": "JavaScript and AJAX For Dummies", "authors": [ "Andy Harris" ], "publisher": "John Wiley & Sons", "publishedDate": "2009-12-02", "description": "Provides information on creating interactive Web experiences and sites using JavaScript and Ajax.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9780470417997" }, { "type": "ISBN_10", "identifier": "0470417994" } ], "readingModes": { "text": false, "image": true }, "pageCount": 416, "printType": "BOOK", "categories": [ "Computers" ], "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "preview-1.0.0", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=iILJ_KIyxkgC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=iILJ_KIyxkgC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=iILJ_KIyxkgC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=10&source=gbs_api", "infoLink": "http://books.google.no/books?id=iILJ_KIyxkgC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/JavaScript_and_AJAX_For_Dummies.html?hl=&id=iILJ_KIyxkgC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": false }, "webReaderLink": "http://books.google.no/books/reader?id=iILJ_KIyxkgC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "UooAblGoGN8C", "etag": "efeBKDuf/gU", "selfLink": "https://www.googleapis.com/books/v1/volumes/UooAblGoGN8C", "volumeInfo": { "title": "Designing with Javascript", "subtitle": "Creating Dynamic Web Pages", "authors": [ "Nick Heinle", "Bill Peña" ], "publisher": "\"O'Reilly Media, Inc.\"", "publishedDate": "2002", "description": "A guide for beginners offers an overview of JavaScript basics and explains how to create Web pages, identify browsers, and integrate sound, graphics, and animation into Web applications", "industryIdentifiers": [ { "type": "ISBN_10", "identifier": "156592360X" }, { "type": "ISBN_13", "identifier": "9781565923607" } ], "readingModes": { "text": false, "image": true }, "pageCount": 216, "printType": "BOOK", "categories": [ "Computers" ], "averageRating": 3.5, "ratingsCount": 2, "maturityRating": "NOT_MATURE", "allowAnonLogging": false, "contentVersion": "1.0.0.0.preview.1", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=UooAblGoGN8C&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=UooAblGoGN8C&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=UooAblGoGN8C&printsec=frontcover&dq=subject:JavaScript&hl=&cd=11&source=gbs_api", "infoLink": "http://books.google.no/books?id=UooAblGoGN8C&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Designing_with_Javascript.html?hl=&id=UooAblGoGN8C" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=UooAblGoGN8C&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } }, { "kind": "books#volume", "id": "WfAya4HytnAC", "etag": "xwSpwwRscqA", "selfLink": "https://www.googleapis.com/books/v1/volumes/WfAya4HytnAC", "volumeInfo": { "title": "Head First HTML5 Programming", "subtitle": "Building Web Apps with JavaScript", "authors": [ "Eric Freeman", "Elisabeth Robson" ], "publisher": "\"O'Reilly Media, Inc.\"", "publishedDate": "2011-10-06", "description": "Presents information on using HTML5 to create dynamic, data-rich Web pages, covering such topics as geolocation, 2D drawing, Web storages, and Web workers.", "industryIdentifiers": [ { "type": "ISBN_13", "identifier": "9781449390549" }, { "type": "ISBN_10", "identifier": "1449390544" } ], "readingModes": { "text": false, "image": true }, "pageCount": 573, "printType": "BOOK", "categories": [ "Computers" ], "averageRating": 4.0, "ratingsCount": 2, "maturityRating": "NOT_MATURE", "allowAnonLogging": true, "contentVersion": "0.2.0.0.preview.1", "imageLinks": { "smallThumbnail": "http://books.google.com/books/content?id=WfAya4HytnAC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api", "thumbnail": "http://books.google.com/books/content?id=WfAya4HytnAC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api" }, "language": "en", "previewLink": "http://books.google.no/books?id=WfAya4HytnAC&printsec=frontcover&dq=subject:JavaScript&hl=&cd=12&source=gbs_api", "infoLink": "http://books.google.no/books?id=WfAya4HytnAC&dq=subject:JavaScript&hl=&source=gbs_api", "canonicalVolumeLink": "http://books.google.no/books/about/Head_First_HTML5_Programming.html?hl=&id=WfAya4HytnAC" }, "saleInfo": { "country": "NO", "saleability": "NOT_FOR_SALE", "isEbook": false }, "accessInfo": { "country": "NO", "viewability": "PARTIAL", "embeddable": true, "publicDomain": false, "textToSpeechPermission": "ALLOWED", "epub": { "isAvailable": false }, "pdf": { "isAvailable": true }, "webReaderLink": "http://books.google.no/books/reader?id=WfAya4HytnAC&hl=&printsec=frontcover&output=reader&source=gbs_api", "accessViewStatus": "SAMPLE", "quoteSharingAllowed": false } } ]};
+    new Demo(element, initialResponse);
+</script>
+</body>
 </html>

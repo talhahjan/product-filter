@@ -63,6 +63,8 @@
 	}
 
 	&-remove {
+		background-color: transparent;
+		border: none;
 
 		&:after {
 			content: "\2A2F";
@@ -72,5 +74,9 @@
 			position: relative;
 			top: 0.45px;
 		}
+
+      &[disabled]:after{
+        color: #ccc;
+      }
 	}
 }

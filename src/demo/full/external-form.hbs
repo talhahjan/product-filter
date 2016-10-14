@@ -1,17 +1,14 @@
 <form class="external-form" data-external-form>
     <h5>Example of how to call the plugin from outside</h5>
-    <label for="external-form-1">Red</label>
-    <input id="external-form-1" type="radio" name="color" value="red" />
-    <label for="external-form-2">Green</label>
-    <input id="external-form-2" type="radio" name="color" value="green" />
-    <label for="external-form-3">Blue</label>
-    <input id="external-form-3" type="radio" name="color" value="blue" />
+    <button name="subject" value="jQuery">See all jQuery books</button>
 </form>
 <script>
     (function(){
         var form = document.querySelector('[data-external-form]');
-        form.addEventListener('change', function(event){
-            filter.navigate({color: event.target.value});
+        form.addEventListener('submit', function(event){
+            event.preventDefault();
+            var value = document.activeElement.value;
+            filter.navigate({subject: value, inpublisher: null});
         });
     }());
 </script>

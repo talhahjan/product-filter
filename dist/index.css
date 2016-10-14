@@ -104,7 +104,7 @@
 
 .filter-list { position: relative; -webkit-transform: scale(1); -ms-transform: scale(1); transform: scale(1); opacity: 1; }
 
-@media (min-width: 0) and (max-width: 1279px) { .filter-list { float: left; transition: opacity 1s ease 1s, -webkit-transform .25s ease; transition: transform .25s ease, opacity 1s ease 1s; transition: transform .25s ease, opacity 1s ease 1s, -webkit-transform .25s ease; -webkit-transform: translateX(-240px); -ms-transform: translateX(-240px); transform: translateX(-240px); width: calc(100% + 240px); padding: 1px; background-color: #eee; box-shadow: 0 0 3px #444; } }
+@media (min-width: 0) and (max-width: 1279px) { .filter-list { float: left; -webkit-transform: translateX(-240px); -ms-transform: translateX(-240px); transform: translateX(-240px); width: calc(100% + 240px); padding: 1px; background-color: #eee; box-shadow: 0 0 3px #444; } }
 
 @media (min-width: 1280px) { .filter-list { min-height: 200px; margin-left: -1px; margin-right: -1px; padding-top: 1px; transition: opacity 1s ease; background-color: transparent; } }
 
@@ -177,6 +177,10 @@
 
 @media (min-width: 1280px) { .filter-tag-item { margin: 20px 10px 10px 0; } }
 
+.filter-tag-remove { background-color: transparent; border: none; }
+
 .filter-tag-remove:after { content: "\2A2F"; font-size: 12pt; -webkit-flex: 0 0 auto; -ms-flex: 0 0 auto; flex: 0 0 auto; position: relative; top: 0.45px; }
+
+.filter-tag-remove[disabled]:after { color: #ccc; }
 
 /*# sourceMappingURL=index.css.map */

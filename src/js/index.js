@@ -113,6 +113,9 @@ window.Filter = class {
 
 	_removeFromUrl(mainKey, value){
 		var urlData = this._getUrlData();
+        if(!urlData[mainKey]){
+            return;
+        }
 		var i = urlData[mainKey].indexOf(value);
 		if(i != -1) {
             urlData[mainKey].splice(i, 1);
@@ -127,7 +130,14 @@ window.Filter = class {
 	}
 
     navigate(parameters){
-        var data = $.extend({}, this._getUrlData(), parameters);
+        var urlData = this._getUrlData();
+        for(var parameter in parameters){
+            if(!parameters[parameter]){
+                delete urlData[parameter];
+                delete parameters[parameter];
+            }
+        }
+        var data = $.extend({}, urlData, parameters);
         this._updateUrl(data);
     }
 
