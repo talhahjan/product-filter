@@ -1,0 +1,7 @@
+@function media-query-width($min-width, $max-width: null){
+  $str: '(min-width: #{$min-width})';
+  @if $max-width {
+    $str: $str +  ' and (max-width: #{$max-width})';
+  }
+  @return $str;
+}

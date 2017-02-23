@@ -1,0 +1,13 @@
+// Media query breakpoints
+
+$media-small-start:    0 !default;
+$media-medium-start:   640px !default;
+$media-large-start:    1280px !default;
+
+// Media queries
+
+$media-query-small:             media-query-width($media-small-start, $media-medium-start - 1px) !default;
+$media-query-small-and-medium:  media-query-width($media-small-start, $media-large-start - 1px) !default;
+$media-query-medium:            media-query-width($media-medium-start, $media-large-start - 1px) !default;
+$media-query-medium-and-large:  media-query-width($media-medium-start) !default;
+$media-query-large:             media-query-width($media-large-start) !default;

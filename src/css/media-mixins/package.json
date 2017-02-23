@@ -1,0 +1,79 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "sass-media-mixins@^1.0.0",
+        "scope": null,
+        "escapedName": "sass-media-mixins",
+        "name": "sass-media-mixins",
+        "rawSpec": "^1.0.0",
+        "spec": ">=1.0.0 <2.0.0",
+        "type": "range"
+      },
+      "D:\\projects\\product-filter"
+    ]
+  ],
+  "_from": "sass-media-mixins@>=1.0.0 <2.0.0",
+  "_id": "sass-media-mixins@1.0.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/sass-media-mixins",
+  "_nodeVersion": "5.5.0",
+  "_npmOperationalInternal": {
+    "host": "packages-5-east.internal.npmjs.com",
+    "tmp": "tmp/sass-media-mixins-1.0.0.tgz_1456433257907_0.7730375791434199"
+  },
+  "_npmUser": {
+    "name": "hkvalvik",
+    "email": "hkvalvik@gmail.com"
+  },
+  "_npmVersion": "3.3.12",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "sass-media-mixins@^1.0.0",
+    "scope": null,
+    "escapedName": "sass-media-mixins",
+    "name": "sass-media-mixins",
+    "rawSpec": "^1.0.0",
+    "spec": ">=1.0.0 <2.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/sass-media-mixins/-/sass-media-mixins-1.0.0.tgz",
+  "_shasum": "99e91eae31ed1993d02855dff5ec222445486868",
+  "_shrinkwrap": null,
+  "_spec": "sass-media-mixins@^1.0.0",
+  "_where": "D:\\projects\\product-filter",
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/hkvalvik/sass-media-mixins/issues"
+  },
+  "dependencies": {},
+  "description": "## Usage",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "99e91eae31ed1993d02855dff5ec222445486868",
+    "tarball": "https://registry.npmjs.org/sass-media-mixins/-/sass-media-mixins-1.0.0.tgz"
+  },
+  "gitHead": "094e4f17325929bdf5db21b4e06d653d8b824e91",
+  "homepage": "https://github.com/hkvalvik/sass-media-mixins#readme",
+  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "hkvalvik",
+      "email": "hkvalvik@gmail.com"
+    }
+  ],
+  "name": "sass-media-mixins",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hkvalvik/sass-media-mixins.git"
+  },
+  "scripts": {},
+  "version": "1.0.0"
+}

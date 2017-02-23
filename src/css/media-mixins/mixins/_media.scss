@@ -1,0 +1,19 @@
+@mixin media-small {
+  @media #{$media-query-small} { @content; }
+}
+
+@mixin media-medium {
+  @media #{$media-query-medium} { @content; }
+}
+
+@mixin media-small-and-medium {
+  @media #{$media-query-small-and-medium} { @content; }
+}
+
+@mixin media-medium-and-large {
+  @media #{$media-query-medium-and-large} { @content; }
+}
+
+@mixin media-large {
+  @media #{$media-query-large} { @content; }
+}
