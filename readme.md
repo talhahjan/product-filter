@@ -1,3 +1,5 @@
+# OBSOLETE! DO NOT USE
+
 # Geta product filter
 
 A JavaScript plugin that connects to your API and renders a product filter with custom HTML.
